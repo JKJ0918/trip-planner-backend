@@ -125,6 +125,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me","/api/auth/logout").permitAll() // 로그인 로그아웃
                         .requestMatchers("/join","/login").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
+                        .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
+
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS

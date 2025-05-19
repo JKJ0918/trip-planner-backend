@@ -22,15 +22,9 @@ public class JoinService {
 
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
+        String nickname = joinDTO.getNickname();
         String name = joinDTO.getName();
         String email = joinDTO.getEmail();
-
-        boolean isExist = userRepository.existsByEmail(email);
-
-        if(isExist) {
-            // 이메일이 있을 경우
-            return;
-        }
 
         // 없을 경우
 
@@ -38,6 +32,7 @@ public class JoinService {
 
         data.setUsername(username);
         data.setPassword(bCryptPasswordEncoder.encode(password));
+        data.setNickname(nickname);
         data.setName(name);
         data.setEmail(email);
         data.setRole("ROLE_USER");

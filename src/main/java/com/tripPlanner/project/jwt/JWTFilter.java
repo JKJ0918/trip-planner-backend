@@ -50,14 +50,13 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = extractAccessToken(request);
-
+        System.out.println("doFilterInternal access Token 검증 : " + accessToken);
         // accessToken 이 없을 경우 다음 필터로 넘김
         if (accessToken == null) {
             System.out.println("accessToken null");
             filterChain.doFilter(request, response);
             return;
         }
-
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {
             jwtUtil.isExpired(accessToken);
@@ -74,7 +73,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 토큰이 access인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(accessToken);
-
+        System.out.println("doFilterInternal Token category 검증 : " + category);
         if (!category.equals("access")) { // access가 아닐 경우
 
             //response body
@@ -90,11 +89,11 @@ public class JWTFilter extends OncePerRequestFilter {
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
+        String type = jwtUtil.getType(accessToken);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Authentication authToken = null;
 
-        if (authentication.getPrincipal() instanceof CustomOAuth2User) {
+        if (type.equals("social")) {
             // OAuth2 로그인 사용자
             //userDTO를 생성하여 값 set
             UserDTO userDTO = new UserDTO();
@@ -107,7 +106,7 @@ public class JWTFilter extends OncePerRequestFilter {
             //스프링 시큐리티 인증 토큰 생성
             authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
 
-        } else if (authentication.getPrincipal() instanceof CustomUserDetails) {
+        } else if (type.equals("local")) {
             // JWT 로그인 사용자
             //userEntity를 생성하여 값 set
             UserEntity userEntity = new UserEntity();

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
+        System.out.println("CustomSuccessHandler authentication 출력 확인 : " + authentication);
+
         //유저 정보
         String username = authentication.getName();
 
@@ -42,16 +45,24 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String role = auth.getAuthority();
 
         //토큰 생성
-        String accessToken = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
-
+        String accessToken = jwtUtil.createJwt("access", "social", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", "social", username, role, 86400000L);
+        // 토큰 만들때 username은 db의 name에 해당하는 값.
         //Refresh 토큰 저장
         addRefreshEntity(username, refresh, 86400000L);
 
         response.addCookie(createCookie("Authorization", accessToken));
         // 띄어쓰기 포함 일 경우 쿠키 오류 발생가능. JWT도 보안상 Bearer 접두사를 생략하는 경우가 많음.
         response.addCookie(createCookie("refresh", refresh));
-        response.sendRedirect("http://localhost:3000/main"); // 로그인 성공시 이동 페이지
+
+        if(role.equals("ROLE_USER_A")){
+            // 신규회원
+            response.sendRedirect("http://localhost:3000/socialJoin");
+        }else{
+            // 기존회원
+            response.sendRedirect("http://localhost:3000/main"); // 로그인 성공시 이동 페이지
+        }
+
 
 
     }

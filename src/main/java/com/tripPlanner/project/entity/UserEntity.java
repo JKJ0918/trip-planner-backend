@@ -20,10 +20,13 @@ public class UserEntity {
 
     private String password;
 
+    private String nickname;
+
     private String name;
 
     private String email;
 
+    // 비입력값
     private String role;
 
     private String socialType; // 소셜 로그인 경로 (네이버, 카카오, 구글)

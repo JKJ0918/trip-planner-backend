@@ -62,7 +62,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userEntity.setUsername(username);
             userEntity.setEmail(oAuth2Response.getEmail());
             userEntity.setName(oAuth2Response.getName());
-            userEntity.setRole("ROLE_USER");
+            userEntity.setRole("ROLE_USER_A");
             userEntity.setSocialType(registrationId); // 소셜 로그인 타입
 
             userRepository.save(userEntity);
@@ -71,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);
             userDTO.setName(oAuth2Response.getName());
-            userDTO.setRole("ROLE_USER");
+            userDTO.setRole("ROLE_USER_A");
 
             return new CustomOAuth2User(userDTO);
         }
