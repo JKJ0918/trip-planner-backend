@@ -1,5 +1,6 @@
 package com.tripPlanner.project.oauth2;
 
+import com.tripPlanner.project.dto.CustomOAuth2User;
 import com.tripPlanner.project.entity.RefreshEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.RefreshRepository;
@@ -39,14 +40,22 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         //유저 정보
         String username = authentication.getName();
 
+        // 소셜 타입
+        CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
+        String socialType = user.getSocialType();
+        System.out.println("CustomSuccessHandler CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal() 출력 확인 : " + user);
+        System.out.println("CustomSuccessHandler socialType 출력 확인 : " + socialType);
+
+
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
+
         //토큰 생성
-        String accessToken = jwtUtil.createJwt("access", "social", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", "social", username, role, 86400000L);
+        String accessToken = jwtUtil.createJwt("access", "social", username, role, socialType, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", "social", username, role, socialType, 86400000L);
         // 토큰 만들때 username은 db의 name에 해당하는 값.
         //Refresh 토큰 저장
         addRefreshEntity(username, refresh, 86400000L);
@@ -56,7 +65,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("refresh", refresh));
 
         if(role.equals("ROLE_USER_A")){
-            // 신규회원
+            // 추가정보 미기입 회원
             response.sendRedirect("http://localhost:3000/socialJoin");
         }else{
             // 기존회원

@@ -41,19 +41,25 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("type", String.class);
     }
 
+    public String getSocialType(String token){
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("socialType", String.class);
+    }
+
     public Boolean isExpired(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
     // jwtToken 생성
-    public String createJwt(String category, String type, String username, String role, Long expiredMs) {
+    public String createJwt(String category, String type, String username, String role, String socialType, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category)
                 .claim("type", type)
                 .claim("username", username)
                 .claim("role", role)
+                .claim("socialType", socialType)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)

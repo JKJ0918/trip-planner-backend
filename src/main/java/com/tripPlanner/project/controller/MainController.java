@@ -1,9 +1,12 @@
 package com.tripPlanner.project.controller;
 
+import com.tripPlanner.project.dto.CustomOAuth2User;
+import com.tripPlanner.project.dto.UserInfoResponseDTO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,36 +22,21 @@ public class MainController {
         return "main route";
     }
 
-    // 로그인 상태확인
+    // 소셜 로그아웃 컨트롤러
     @GetMapping("/api/auth/me")
-    public ResponseEntity<?> getLoginStatus(Authentication authentication) {
+    public UserInfoResponseDTO getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.ok(false); // 인증 안 됨
+            throw new RuntimeException("Unauthorized - 인증되지 않음");
         }
-        return ResponseEntity.ok(true); // 인증됨
+
+        CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
+        String socialType = user.getSocialType();
+
+        System.out.println("로그아웃 에이밍 소셜타입 은? : "+socialType);
+        return new UserInfoResponseDTO(socialType);
     }
-
-
-
-    // 로그아웃 컨트롤러
-    @PostMapping("/api/auth/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie authCookie = new Cookie("Authorization", null);
-        authCookie.setMaxAge(0);
-        authCookie.setPath("/");
-        authCookie.setHttpOnly(true);
-        response.addCookie(authCookie);
-
-        Cookie jsessionCookie = new Cookie("JSESSIONID", null);
-        jsessionCookie.setMaxAge(0);
-        jsessionCookie.setPath("/");
-        jsessionCookie.setHttpOnly(true);
-        response.addCookie(jsessionCookie);
-
-        return ResponseEntity.ok().build();
-    }
-
-
 
 
 }

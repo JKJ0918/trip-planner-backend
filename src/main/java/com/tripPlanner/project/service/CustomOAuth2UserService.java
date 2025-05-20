@@ -72,7 +72,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userDTO.setUsername(username);
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole("ROLE_USER_A");
-
+            userDTO.setSocialType(registrationId);
+            System.out.println("OAuth2 registrationId 값 넣기전 : " + registrationId);
+            System.out.println("OAuth2 registrationId 값 넣기전2 userDTO.setSocialType(registrationId); : " + userDTO.getSocialType());
             return new CustomOAuth2User(userDTO);
         }
         else { // 기존 회원
@@ -88,6 +90,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userDTO.setUsername(existData.getUsername());
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole(existData.getRole());
+            userDTO.setSocialType(registrationId);
 
             return new CustomOAuth2User(userDTO);
         }

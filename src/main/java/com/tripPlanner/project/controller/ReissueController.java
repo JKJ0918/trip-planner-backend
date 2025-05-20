@@ -32,7 +32,7 @@ public class ReissueController {
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response){
-
+        // refresh 토큰은 cridential 켜서 보내면 될것 같다
         // 아래 내용 Service 로 나중에 정리 할 것.
 
         //get refresh token
@@ -82,11 +82,11 @@ public class ReissueController {
         String role = jwtUtil.getRole(refresh);
 
         // distinguish social & local -- make sure token type down below_19 may 2025
-
+        // Add socialType distinguish 20_may 2025
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", "temporary", username, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", "temporary", username, role, 86400000L); // refresh token 도 새로 발급
+        String newAccess = jwtUtil.createJwt("access", "tempType", username, role, "tempSocialType",600000L);
+        String newRefresh = jwtUtil.createJwt("refresh", "tempType", username, role, "tempSocialType",86400000L); // refresh token 도 새로 발급
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);

@@ -68,7 +68,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return; // 토큰 만료시 다음 필터가아닌 만료됐다는 응답 return
+            return; // 토큰 만료시 다음 필터가아닌 만료됐다는 응답 return 만료 돼었다는 응답코드 발생
         }
 
         // 토큰이 access인지 확인 (발급시 페이로드에 명시)
@@ -83,6 +83,8 @@ public class JWTFilter extends OncePerRequestFilter {
             //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
+
+            // 필요한 응용 상태코드를 발급하여 프론트에서 리프레시 토큰을 발급하도록 하던가 해야함.
         }
         // 여기까지 토큰 검증완료
         //
@@ -90,34 +92,39 @@ public class JWTFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
         String type = jwtUtil.getType(accessToken);
+        String socialType = jwtUtil.getSocialType(accessToken);
 
         Authentication authToken = null;
 
-        if (type.equals("social")) {
-            // OAuth2 로그인 사용자
-            //userDTO를 생성하여 값 set
-            UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(username);
-            userDTO.setRole(role);
+        if (type.equals("local")) {
 
-            //UserDetails에 회원 정보 객체 담기
-            CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-
-            //스프링 시큐리티 인증 토큰 생성
-            authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
-
-        } else if (type.equals("local")) {
             // JWT 로그인 사용자
             //userEntity를 생성하여 값 set
             UserEntity userEntity = new UserEntity();
             userEntity.setUsername(username);
             userEntity.setRole(role);
+            userEntity.setSocialType(socialType);
 
             //UserDetails에 회원 정보 객체 담기
             CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
             //스프링 시큐리티 인증 토큰 생성
             authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+
+        } else {
+            // OAuth2 로그인 사용자
+            //userDTO를 생성하여 값 set
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUsername(username);
+            userDTO.setRole(role);
+            userDTO.setSocialType(socialType);
+
+            //UserDetails에 회원 정보 객체 담기
+            CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+
+            //스프링 시큐리티 인증 토큰 생성
+            authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
 
         }
 

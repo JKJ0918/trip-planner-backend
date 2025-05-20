@@ -37,6 +37,8 @@ public class JoinController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDTO joinDTO) {
 
+        // Spring boot에서는 Frontend에서 전달 받은 body: JSON.stringify({ username })을
+        // DTO 클래스로 자동 매핑해줌
         // 중복 검사
         if (userRepository.existsByUsername(joinDTO.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 아이디입니다.");
@@ -64,22 +66,22 @@ public class JoinController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token not found");
         }
 
-        String tokenUsername = jwtUtil.getUsername(token);
-        UserEntity user = userRepository.findByName(tokenUsername);
-        UserEntity currentUser = userRepository.findByUsername(user.getUsername());
+        String tokenSocialType = jwtUtil.getSocialType(token);
+        String tokenUsername = jwtUtil.getUsername(token); // token username = name
+
+        UserEntity currentUser = userRepository.findByNameAndSocialType(tokenUsername, tokenSocialType);
+        System.out.println("추가 정보 currentUser 확인 : " + currentUser);
 
         // 닉네임 중복 사용자 조회
-        Optional<UserEntity> nicknameUserOpt = userRepository.findByNickname(socialJoinDTO.getNickname());
+        UserEntity nicknameUserOpt = userRepository.findByNickname(socialJoinDTO.getNickname());
 
 
-        if (nicknameUserOpt.isPresent()) {
-            UserEntity nicknameUser = nicknameUserOpt.get();
+        if (nicknameUserOpt != null) {
 
-            // 현재 로그인한 유저가 아닌데, 해당 닉네임을 쓰고 있다면 중복
-            if (!nicknameUser.getUsername().equals(currentUser.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
-            }
-        }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+
+        }else {
+
 
         // 중복 아님 → 저장
         currentUser.setNickname(socialJoinDTO.getNickname());
@@ -88,6 +90,7 @@ public class JoinController {
 
         return ResponseEntity.ok("추가 정보 저장 완료");
 
+        }
     }
 
     private String extractTokenFromCookie(HttpServletRequest request) { // 쿠키 검토 

@@ -123,7 +123,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/").permitAll() //  메인 페이지
                         .requestMatchers("/api/auth/me","/api/auth/logout").permitAll() // 로그인 로그아웃
-                        .requestMatchers("/join","/login").permitAll() // 회원가입
+                        .requestMatchers("/join","/login","/main").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
                         .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
 
