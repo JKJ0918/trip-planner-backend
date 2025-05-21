@@ -90,7 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         addRefreshEntity(username, refresh, 86400000L);
 
         //응답 설정
-        response.setHeader("Authorization", "Bearer " + accessToken); // access token header 추가
+        response.addCookie(createCookie("Authorization", accessToken)); // access token header 추가
         // HTTP 인증 방식은 RFC 7235 정의에 따름
         // Authorization: 타입 인증토큰 -> 예시) Authorization: Bearer 인증토큰string
         response.addCookie(createCookie("refresh", refresh));

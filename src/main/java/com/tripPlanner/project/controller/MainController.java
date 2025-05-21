@@ -1,19 +1,23 @@
 package com.tripPlanner.project.controller;
 
-import com.tripPlanner.project.dto.CustomOAuth2User;
-import com.tripPlanner.project.dto.UserInfoResponseDTO;
+import com.tripPlanner.project.jwt.JWTFilter;
+import com.tripPlanner.project.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 @Controller
 public class MainController {
+
+    private JWTUtil jwtUtil;
+    public MainController(JWTUtil jwtUtil){
+        this.jwtUtil = jwtUtil;
+    }
 
     @GetMapping("/")
     @ResponseBody
@@ -24,19 +28,33 @@ public class MainController {
 
     // 소셜 로그아웃 컨트롤러
     @GetMapping("/api/auth/me")
-    public UserInfoResponseDTO getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized - 인증되지 않음");
-        }
+        String token = extractAccessToken(request);
+        String socialType = jwtUtil.getSocialType(token);
 
-        CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
-        String socialType = user.getSocialType();
+        return ResponseEntity.ok(Map.of(
+           "socialType", socialType
+        ));
 
-        System.out.println("로그아웃 에이밍 소셜타입 은? : "+socialType);
-        return new UserInfoResponseDTO(socialType);
+
     }
 
+    private String extractAccessToken(HttpServletRequest request){
+        // 1. OAuth2 방식: 쿠키에서 찾기
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        // 2. JWT 방식: 헤더에서 찾기
+        String header = request.getHeader("access");
+
+        return null;
+    }
 
 }
