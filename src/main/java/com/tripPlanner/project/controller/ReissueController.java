@@ -93,7 +93,7 @@ public class ReissueController {
         addRefreshEntity(username, newRefresh, 86400000L);
 
         //response
-        response.setHeader("Authorization", "Bearer " + newAccess); // access token header 추가
+        response.addCookie(createCookie("Authorization", newAccess)); // access token header 추가
         response.addCookie(createCookie("refresh", newRefresh));
 
 

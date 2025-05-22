@@ -24,6 +24,12 @@ repositories {
 }
 
 dependencies {
+
+	// JAXB API
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+	// JAXB 구현체 (runtime)
+	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.3'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
