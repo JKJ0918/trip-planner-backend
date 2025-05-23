@@ -23,9 +23,9 @@ public class FlightController {
 
     // 구현중 : api를 통한 항공권 검색
     @PostMapping("/api/flights")
-    public ResponseEntity<?> searchFlights(@RequestBody FlightSearchDTO flightSearchRequest){
+    public ResponseEntity<?> searchFlights(@RequestBody FlightSearchDTO flightSearchDTO){
 
-        Map<String, List<FlightItem>> result = flightSearchService.searchRoundTrip(flightSearchRequest);
+        Map<String, List<FlightItem>> result = flightSearchService.searchRoundTrip(flightSearchDTO);
         return ResponseEntity.ok(result);
 
     }

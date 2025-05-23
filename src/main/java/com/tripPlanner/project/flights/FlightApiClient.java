@@ -15,7 +15,7 @@ public class FlightApiClient {
     // 서비스키 업로드 금지
     public List<FlightItem> fetchFlights(String dep, String arr, String date) {
         try {
-            String serviceKey = "시크릿키 입력";
+            String serviceKey = "";
             String urlStr = "http://openapi.airport.co.kr/service/rest/FlightScheduleList/getIflightScheduleList?"
                     + "ServiceKey=" + serviceKey
                     + "&schDeptCityCode=" + dep

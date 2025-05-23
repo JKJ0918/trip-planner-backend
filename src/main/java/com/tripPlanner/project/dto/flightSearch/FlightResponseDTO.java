@@ -4,6 +4,8 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -17,25 +19,27 @@ public class FlightResponseDTO {
     @XmlElement(name = "body")
     private Body body;
 
-    public List<FlightItem> getItems() {
-        return body != null ? body.getItemList() : List.of(); // null 방지
-    }
-
+    @Getter
+    @Setter
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Body {
-
         @XmlElement(name = "items")
         private Items items;
-
-        public List<FlightItem> getItemList() {
-            return items != null ? items.itemList : List.of(); // null 방지
-        }
     }
 
+    @Getter
+    @Setter
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Items {
         @XmlElement(name = "item")
         private List<FlightItem> itemList;
+    }
+
+    public List<FlightItem> getItems() {
+        if (body != null && body.items != null) {
+            return body.items.itemList;
+        }
+        return null;
     }
 
 }
