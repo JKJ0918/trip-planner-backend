@@ -9,12 +9,11 @@ import lombok.Setter;
 
 import java.util.List;
 
-@XmlRootElement(name ="response")
+@Getter
+@Setter
+@XmlRootElement(name = "response")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FlightResponseDTO {
-
-    // 공항 데이터 구조  <response> → <body> → <items> → <item> 구조
-    // 파싱 -> wrapper 객체 필요
 
     @XmlElement(name = "body")
     private Body body;
@@ -25,6 +24,15 @@ public class FlightResponseDTO {
     public static class Body {
         @XmlElement(name = "items")
         private Items items;
+
+        @XmlElement(name = "numOfRows")
+        private int numOfRows;
+
+        @XmlElement(name = "pageNo")
+        private int pageNo;
+
+        @XmlElement(name = "totalCount")
+        private int totalCount;
     }
 
     @Getter
@@ -35,11 +43,18 @@ public class FlightResponseDTO {
         private List<FlightItem> itemList;
     }
 
+
     public List<FlightItem> getItems() {
         if (body != null && body.items != null) {
             return body.items.itemList;
         }
-        return null;
+        return List.of(); // null 방지
     }
 
+    public int getTotalCount() {
+        if (body != null) {
+            return body.totalCount;
+        }
+        return 0;
+    }
 }

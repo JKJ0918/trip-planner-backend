@@ -12,4 +12,8 @@ public class FlightSearchDTO {
     private String departureDate;   // 예: "20240525"
     private String returnDate;      // 예: "20240625"
 
+    private int goPage = 1; // default 출국편
+    private int backPage = 1; // default 귀국편
+    private int size = 10; // default
+
 }
