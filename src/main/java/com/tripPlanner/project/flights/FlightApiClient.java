@@ -19,7 +19,7 @@ public class FlightApiClient {
                     + "&schDeptCityCode=" + dep
                     + "&schArrvCityCode=" + arr
                     + "&schDate=" + date
-                    + "&pageNo" + page;
+                    + "&pageNo=" + page;
 
 
             URL url = new URL(urlStr);
