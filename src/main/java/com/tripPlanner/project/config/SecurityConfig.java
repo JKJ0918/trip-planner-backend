@@ -126,7 +126,8 @@ public class SecurityConfig {
                         .requestMatchers("/join","/login","/main").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
                         .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
-                        .requestMatchers("/api/flights", "/api/locations").permitAll() // 항공권 검색, 초반 위치 목록
+                        .requestMatchers("/api/flights", "/api/locations",
+                                "/api/images/upload", "/api/journals/auth/me", "/api/journals").permitAll() // 항공권 검색, 초반 위치 목록, 이미지 업로드
 
                         .anyRequest().authenticated());
 

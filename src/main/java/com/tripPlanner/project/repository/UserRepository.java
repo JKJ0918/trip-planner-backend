@@ -14,13 +14,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     UserEntity findByUsername(String username);
 
-    UserEntity findByNameAndSocialType(String username, String socialType); // 소셜 로그인 추가 정보 기입
+    UserEntity findByNameAndSocialType(String username, String socialType); // 소셜 로그인 추가 정보 기입, 게시글 작성 유저 정부
 
     UserEntity findByNickname(String nickname);
 
     boolean existsByUsername(String username);
     boolean existsByNickname(String nickname);
 
-    UserEntity findByName(String name);
 
 }
