@@ -27,6 +27,7 @@ public class JournalEntity {
     private TravelJournalEntity travelJournalEntity;
 
     @OneToMany(mappedBy = "journalEntity", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PhotoEntity> photos = new ArrayList<>();
 
 }

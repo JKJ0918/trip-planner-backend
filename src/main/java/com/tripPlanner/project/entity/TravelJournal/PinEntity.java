@@ -22,6 +22,6 @@ public class PinEntity {
     private String address;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private TravelJournalEntity travelJournalEntity;
-
+    private TravelJournalEntity travelJournalPinEntity;
+    // travelJournalRntity_id 외래키 fk 주인 설정
 }

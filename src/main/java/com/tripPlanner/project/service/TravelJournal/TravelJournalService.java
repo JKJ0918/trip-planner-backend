@@ -37,8 +37,6 @@ public class TravelJournalService {
                 .endDate(LocalDate.parse(requestDTO.getEndDate()))
                 .build();
 
-        System.out.println("pinDTO 값 확인: " + requestDTO.getPins());
-
         // 3. Pins 추가
         if (requestDTO.getPins() != null){
             for(PinDTO pinDTO : requestDTO.getPins()){
@@ -48,12 +46,8 @@ public class TravelJournalService {
                         .name(pinDTO.getName())
                         .category(pinDTO.getCategory())
                         .address(pinDTO.getAddress())
-                        .travelJournalEntity(travelJournalEntity)
+                        .travelJournalPinEntity(travelJournalEntity) // TravelJournalEntity의 자식 리스트에 PinEntity를 추가
                         .build();
-
-                if (travelJournalEntity.getPinEntities() == null) {
-                    travelJournalEntity.setPinEntities(new ArrayList<>());
-                }
 
                 travelJournalEntity.getPinEntities().add(pin);
             }

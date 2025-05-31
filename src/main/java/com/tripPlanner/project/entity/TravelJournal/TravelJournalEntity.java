@@ -29,10 +29,12 @@ public class TravelJournalEntity {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PinEntity> pinEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<JournalEntity> journalEntities = new ArrayList<>();
 
     private LocalDateTime createdAt = LocalDateTime.now();
