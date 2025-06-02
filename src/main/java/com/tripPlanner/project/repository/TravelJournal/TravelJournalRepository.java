@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TravelJournalRepository extends JpaRepository<TravelJournalEntity, Long> {
     // List<TravelJournalEntity> findByUserId(String userId); // 토큰의 이름과 소셜 타입으로 찾을 예정임
+    List<TravelJournalEntity> findByIsPublicTrueOrderByCreatedAtDesc();
 }

@@ -3,6 +3,7 @@ package com.tripPlanner.project.service.TravelJournal;
 import com.tripPlanner.project.dto.TravelJournal.JournalDTO;
 import com.tripPlanner.project.dto.TravelJournal.PinDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
+import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
 import com.tripPlanner.project.entity.TravelJournal.JournalEntity;
 import com.tripPlanner.project.entity.TravelJournal.PhotoEntity;
 import com.tripPlanner.project.entity.TravelJournal.PinEntity;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,7 +28,7 @@ public class TravelJournalService {
     private final TravelJournalRepository travelJournalRepository;
 
     public Long saveTravelJournal(TravelJournalRequestDTO requestDTO) throws IllegalAccessException {
-        System.out.println("userId 값 확인: " + requestDTO.getUserId());
+
         // 1. 유저조회
         UserEntity user = userRepository.findById(Long.parseLong(requestDTO.getUserId()))
                 .orElseThrow(() -> new IllegalAccessException("유저 없음"));
@@ -35,6 +38,9 @@ public class TravelJournalService {
                 .user(user)
                 .startDate(LocalDate.parse(requestDTO.getStartDate()))
                 .endDate(LocalDate.parse(requestDTO.getEndDate()))
+                .title(requestDTO.getTitle())
+                .locationSummary(requestDTO.getLocationSummary())
+                .isPublic(requestDTO.getIsPublic())
                 .build();
 
         // 3. Pins 추가
@@ -82,8 +88,38 @@ public class TravelJournalService {
         travelJournalRepository.save(travelJournalEntity);
         return travelJournalEntity.getId(); // 저장 후 PK 반환
 
-
     }
+
+    // 게시글 가져오기
+    public List<TravelPostSummaryDTO> getPublicJournals() {
+        List<TravelJournalEntity> journals = travelJournalRepository.findByIsPublicTrueOrderByCreatedAtDesc();
+
+        return journals.stream()
+                .map(journal -> new TravelPostSummaryDTO(
+                        journal.getId(),
+                        journal.getTitle(),
+                        journal.getLocationSummary(),
+                        extractThumbnail(journal),
+                        journal.getUser().getNickname(),
+                        journal.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    // 썸네일 추출
+    private String extractThumbnail(TravelJournalEntity journal) {
+        if (journal.getJournalEntities() != null && !journal.getJournalEntities().isEmpty()) {
+            for (JournalEntity entry : journal.getJournalEntities()) {
+                if (entry.getPhotos() != null && !entry.getPhotos().isEmpty()) {
+                    return entry.getPhotos().get(0).getUrl(); // ✅ 가장 먼저 발견된 사진
+                }
+            }
+        }
+        return "https://your-default-thumbnail.com/default.jpg"; // 썸네일 없을 경우 기본값
+    }
+
+
 
 
 }

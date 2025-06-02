@@ -1,6 +1,7 @@
 package com.tripPlanner.project.controller.TravelJournal;
 
 import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
+import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,13 +42,17 @@ public class TravelJournalController {
         UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
 
         String extId = userEntity.getId().toString();
-        System.out.println("아이디 받아오는지 확인하는 메서드"+ extId);
-        return ResponseEntity.ok(Map.of(
-                "userId", extId
-        ));
-
+        return ResponseEntity.ok(Map.of("userId", extId));
 
     }
+
+   // 게시판 (여행일지 가져오기)
+    @GetMapping("/public")
+    public ResponseEntity<List<TravelPostSummaryDTO>> getPublicJournals() {
+        List<TravelPostSummaryDTO> posts = travelJournalService.getPublicJournals();
+        return ResponseEntity.ok(posts);
+    }
+
 
     private String extractAccessToken(HttpServletRequest request){
         // 1. OAuth2 방식: 쿠키에서 찾기

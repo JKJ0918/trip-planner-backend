@@ -121,14 +121,14 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll() //  메인 페이지
+                        .requestMatchers("/**").permitAll() //  메인 페이지
                         .requestMatchers("/api/auth/me","/api/auth/logout").permitAll() // 로그인 로그아웃
                         .requestMatchers("/join","/login","/main").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
                         .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
                         .requestMatchers("/api/flights", "/api/locations",
-                                "/api/images/upload", "/api/journals/auth/me", "/api/journals").permitAll() // 항공권 검색, 초반 위치 목록, 이미지 업로드
-
+                                "/api/images/upload", "/api/journals/auth/me", "/api/journals").permitAll() // 항공권 검색, 초반 위치 목록, 이미지 업로드,
+                        .requestMatchers("/api/journals/public").permitAll() // 게시글 목록
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS

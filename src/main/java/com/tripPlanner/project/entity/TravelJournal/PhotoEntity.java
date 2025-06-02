@@ -1,14 +1,14 @@
 package com.tripPlanner.project.entity.TravelJournal;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Setter
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PhotoEntity {
 
     @Id

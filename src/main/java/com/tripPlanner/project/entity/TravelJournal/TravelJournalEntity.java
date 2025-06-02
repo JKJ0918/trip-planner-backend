@@ -2,9 +2,7 @@ package com.tripPlanner.project.entity.TravelJournal;
 
 import com.tripPlanner.project.entity.UserEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TravelJournalEntity {
 
  // 여행일지 작성 (게시글 작성)
@@ -25,6 +25,10 @@ public class TravelJournalEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity user;
+
+    private String title; // 게시글 제목
+    private String locationSummary; // 여행 도시
+    private boolean isPublic; // 게시글 공개 여부
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -37,7 +41,8 @@ public class TravelJournalEntity {
     @Builder.Default
     private List<JournalEntity> journalEntities = new ArrayList<>();
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용
 
 }
 
