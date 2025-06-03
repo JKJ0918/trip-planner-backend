@@ -2,6 +2,7 @@ package com.tripPlanner.project.controller.TravelJournal;
 
 import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
+import com.tripPlanner.project.entity.TravelJournal.TravelJournalEntity;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
@@ -9,6 +10,10 @@ import com.tripPlanner.project.service.TravelJournal.TravelJournalService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,12 +51,19 @@ public class TravelJournalController {
 
     }
 
-   // 게시판 (여행일지 가져오기)
+   // 게시판 (여행일지 가져오기) 페이지,
     @GetMapping("/public")
-    public ResponseEntity<List<TravelPostSummaryDTO>> getPublicJournals() {
-        List<TravelPostSummaryDTO> posts = travelJournalService.getPublicJournals();
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<Page<TravelPostSummaryDTO>> getPublicJournals(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "keyword", required = false) String keyword
+    ) {
+        Page<TravelPostSummaryDTO> result = travelJournalService.getPublicJournals(page, size, keyword);
+        return ResponseEntity.ok(result);
     }
+
+
+
 
 
     private String extractAccessToken(HttpServletRequest request){

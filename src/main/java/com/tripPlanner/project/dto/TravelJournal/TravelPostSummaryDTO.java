@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TravelPostSummaryDTO {
+    // 게시글 목록 관련
 
     private Long id;
     private String title;

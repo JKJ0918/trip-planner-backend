@@ -13,9 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
+        System.out.println("file:///"+uploadDir);
         registry
                 .addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///" + uploadDir);
+                //.addResourceLocations("file:///" + uploadDir);
+                .addResourceLocations("file:///" + uploadDir.replace("\\", "/")); // 슬래시 변환 필수
     }
 
 }

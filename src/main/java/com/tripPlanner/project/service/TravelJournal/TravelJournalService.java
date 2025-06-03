@@ -12,6 +12,11 @@ import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.repository.TravelJournal.TravelJournalRepository;
 import com.tripPlanner.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -90,21 +95,28 @@ public class TravelJournalService {
 
     }
 
-    // 게시글 가져오기
-    public List<TravelPostSummaryDTO> getPublicJournals() {
-        List<TravelJournalEntity> journals = travelJournalRepository.findByIsPublicTrueOrderByCreatedAtDesc();
+    // 게시글 가져오기 페이지
+    public Page<TravelPostSummaryDTO> getPublicJournals(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return journals.stream()
-                .map(journal -> new TravelPostSummaryDTO(
+        Page<TravelJournalEntity> journals;
+
+        if (keyword != null && !keyword.isBlank()) {
+            journals = travelJournalRepository.searchPublicByKeyword(keyword, pageable);
+        } else {
+            journals = travelJournalRepository.findByIsPublicTrue(pageable);
+        }
+
+        return journals.map(journal -> new TravelPostSummaryDTO(
                         journal.getId(),
                         journal.getTitle(),
                         journal.getLocationSummary(),
                         extractThumbnail(journal),
                         journal.getUser().getNickname(),
                         journal.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                ));
     }
+
 
 
     // 썸네일 추출
