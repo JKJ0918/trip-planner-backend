@@ -1,8 +1,9 @@
 package com.tripPlanner.project.controller.TravelJournal;
 
+import com.tripPlanner.project.controller.DummyData;
 import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
+import com.tripPlanner.project.dto.TravelJournal.TravelPostDetailDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
-import com.tripPlanner.project.entity.TravelJournal.TravelJournalEntity;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
@@ -11,9 +12,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +49,7 @@ public class TravelJournalController {
 
     }
 
-   // 게시판 (여행일지 가져오기) 페이지,
+   // 게시글 리스트 (여행일지 가져오기) 페이지,
     @GetMapping("/public")
     public ResponseEntity<Page<TravelPostSummaryDTO>> getPublicJournals(
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -62,10 +60,15 @@ public class TravelJournalController {
         return ResponseEntity.ok(result);
     }
 
+    // 상세페이지 (임시)
+    @GetMapping("/public/{id}")
+    public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long id){
+
+        return travelJournalService.getPostDetailById(id);
+    }
 
 
-
-
+    // 토큰 추출
     private String extractAccessToken(HttpServletRequest request){
         // 1. OAuth2 방식: 쿠키에서 찾기
         Cookie[] cookies = request.getCookies();

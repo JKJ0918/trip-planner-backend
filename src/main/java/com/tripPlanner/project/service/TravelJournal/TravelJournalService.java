@@ -1,9 +1,6 @@
 package com.tripPlanner.project.service.TravelJournal;
 
-import com.tripPlanner.project.dto.TravelJournal.JournalDTO;
-import com.tripPlanner.project.dto.TravelJournal.PinDTO;
-import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
-import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
+import com.tripPlanner.project.dto.TravelJournal.*;
 import com.tripPlanner.project.entity.TravelJournal.JournalEntity;
 import com.tripPlanner.project.entity.TravelJournal.PhotoEntity;
 import com.tripPlanner.project.entity.TravelJournal.PinEntity;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -117,6 +115,44 @@ public class TravelJournalService {
                 ));
     }
 
+    // 상세페이지_특정게시물 가져오기
+    public TravelPostDetailDTO getPostDetailById(Long id) {
+        TravelJournalEntity journal = travelJournalRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        List<PinDTO> pins = journal.getPinEntities().stream().map(pin -> new PinDTO(
+                pin.getLat(), pin.getLng(), pin.getName(), pin.getAddress(), pin.getCategory()
+        )).toList(); // pin 정보
+
+        AtomicInteger dayCounter = new AtomicInteger(1);
+        List<ItineraryDTO> itinerary = journal.getJournalEntities().stream()
+                .map(item -> new ItineraryDTO(
+                        dayCounter.getAndIncrement(),                     // 날짜를 int로 변환
+                        item.getTitle(),
+                        item.getDescription(),
+                        item.getPhotos().stream()
+                                .map(PhotoEntity::getUrl)
+                                .toList()
+                )).toList();
+        // 썸네일 동적 추출
+        String thumbnailUrl = null;
+        
+        List<JournalEntity> journals = journal.getJournalEntities();
+        if (!journals.isEmpty() && !journals.get(0).getPhotos().isEmpty()) {
+            thumbnailUrl = journals.get(0).getPhotos().get(0).getUrl(); // 첫 사진
+        }
+
+        return new TravelPostDetailDTO(
+                journal.getId(),
+                journal.getTitle(),
+                journal.getLocationSummary(),
+                new DateRangeDTO(journal.getStartDate().toString(), journal.getEndDate().toString()),
+                thumbnailUrl, // 경로 확인 필수
+                journal.getUser().getNickname(), // 유저 테이블과 연관됨
+                pins,
+                itinerary
+        );
+    }
 
 
     // 썸네일 추출

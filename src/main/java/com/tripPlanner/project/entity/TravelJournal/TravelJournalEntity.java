@@ -33,6 +33,7 @@ public class TravelJournalEntity {
     private LocalDate startDate;
     private LocalDate endDate;
 
+
     @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL)
     @Builder.Default
     private List<PinEntity> pinEntities = new ArrayList<>();
@@ -43,6 +44,8 @@ public class TravelJournalEntity {
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용
+
+
 
 }
 

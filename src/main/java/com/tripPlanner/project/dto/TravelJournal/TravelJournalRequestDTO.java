@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TravelJournalRequestDTO {
-    // 여행일지 총괄
+    // 작성한 여행일지 저장
     private String startDate; // 시작날
     private String endDate; // 종료날
     private String userId; // 작성자 Id

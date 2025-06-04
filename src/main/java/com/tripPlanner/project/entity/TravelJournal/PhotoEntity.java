@@ -19,4 +19,5 @@ public class PhotoEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private JournalEntity journalEntity;
+
 }
