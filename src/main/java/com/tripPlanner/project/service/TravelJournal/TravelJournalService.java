@@ -13,11 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -125,8 +124,8 @@ public class TravelJournalService {
         )).toList(); // pin 정보
 
         AtomicInteger dayCounter = new AtomicInteger(1);
-        List<ItineraryDTO> itinerary = journal.getJournalEntities().stream()
-                .map(item -> new ItineraryDTO(
+        List<JournalReadDTO> itinerary = journal.getJournalEntities().stream()
+                .map(item -> new JournalReadDTO(
                         dayCounter.getAndIncrement(),                     // 날짜를 int로 변환
                         item.getTitle(),
                         item.getDescription(),
@@ -155,7 +154,7 @@ public class TravelJournalService {
     }
 
 
-    // 썸네일 추출
+    // 썸네일 추출 - posts 게시물 리스트에 PostCard.tsx의 썸네일
     private String extractThumbnail(TravelJournalEntity journal) {
         if (journal.getJournalEntities() != null && !journal.getJournalEntities().isEmpty()) {
             for (JournalEntity entry : journal.getJournalEntities()) {
@@ -167,7 +166,58 @@ public class TravelJournalService {
         return "https://your-default-thumbnail.com/default.jpg"; // 썸네일 없을 경우 기본값
     }
 
+    // 게시글 수정
+    @Transactional
+    public void updatePost(Long id, PostUpdateDTO dto, String extId){
+        TravelJournalEntity travel = travelJournalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        if (!travel.getUser().getId().equals(extId)){
+            throw new RuntimeException("작성자만 수정할 수 있습니다.");
+        }
+
+        // 기본 정보 업데이트
+        travel.setTitle(dto.getTitle());
+        travel.setLocationSummary(dto.getLocationSummary());
+        travel.setStartDate(dto.getStartDate());
+        travel.setEndDate(dto.getEndDate());
+
+        // pin 업데이트
+        travel.getPinEntities().clear(); // 기존 pin 정보 삭제
+        dto.getPins().forEach(pinDTO -> {
+            PinEntity pin = new PinEntity();
+            pin.setLat(pinDTO.getLat());
+            pin.setLng(pinDTO.getLng());
+            pin.setName(pinDTO.getName());
+            pin.setAddress(pinDTO.getAddress());;
+            pin.setCategory(pinDTO.getCategory());
+            pin.setTravelJournalPinEntity(travel);
+            travel.getPinEntities().add(pin);
+
+        });
+
+        // 일일 일정 업데이트
+        travel.getJournalEntities().clear(); // 기존 일정 삭제
+        dto.getJournalUpdate().forEach(journalUpdateDTO -> {
+            JournalEntity journal = new JournalEntity();
+            journal.setDate(journalUpdateDTO.getDate());
+            journal.setTitle(journalUpdateDTO.getEntryTitle());
+            journal.setDescription(journalUpdateDTO.getEntryDescription());
+            journal.setTravelJournalEntity(travel);
 
 
+            // 이미지 경로만 등록
+            List<PhotoEntity> photos = journalUpdateDTO.getImageUrls().stream().map(url ->{
+                PhotoEntity photo = new PhotoEntity();
+                photo.setUrl(url);
+                photo.setJournalEntity(journal);
+                return photo;
+            }).collect(Collectors.toList());
+
+            journal.setPhotos(photos);
+            travel.getJournalEntities().add(journal);
+        });
+
+    } // end updatePost
 
 }

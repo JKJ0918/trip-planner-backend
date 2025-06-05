@@ -1,6 +1,6 @@
 package com.tripPlanner.project.controller.TravelJournal;
 
-import com.tripPlanner.project.controller.DummyData;
+import com.tripPlanner.project.dto.TravelJournal.PostUpdateDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelJournalRequestDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelPostDetailDTO;
 import com.tripPlanner.project.dto.TravelJournal.TravelPostSummaryDTO;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -60,11 +59,29 @@ public class TravelJournalController {
         return ResponseEntity.ok(result);
     }
 
-    // 상세페이지 (임시)
+    // 게시글 상세 페이지
     @GetMapping("/public/{id}")
     public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long id){
 
         return travelJournalService.getPostDetailById(id);
+    }
+
+    // 게글 수정
+    @PutMapping("/public/edit/{id}")
+    public ResponseEntity<?> updatePost(@PathVariable Long id,
+                                        @RequestBody PostUpdateDTO dto,
+                                        HttpServletRequest request) {
+
+        String token = extractAccessToken(request);
+        String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
+        String socialType = jwtUtil.getSocialType(token);
+
+        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
+
+        String extId = userEntity.getId().toString();
+
+        travelJournalService.updatePost(id, dto, extId);
+        return ResponseEntity.ok("수정 완료");
     }
 
 

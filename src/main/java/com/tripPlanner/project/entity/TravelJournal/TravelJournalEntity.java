@@ -40,7 +40,7 @@ public class TravelJournalEntity {
 
     @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL)
     @Builder.Default
-    private List<JournalEntity> journalEntities = new ArrayList<>();
+    private List<JournalEntity> journalEntities = new ArrayList<>(); // 일일 일정
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용

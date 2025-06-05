@@ -12,15 +12,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TravelPostDetailDTO {
-
+    // 여행 상세정보
     private Long id;
     private String title;
     private String locationSummary;
+    
     private DateRangeDTO dateRange;
     private String thumbnailUrl;
     private String authorNickname;
-    private List<PinDTO> pins;
-    private List<ItineraryDTO> itinerary;
+ 
+    
+    private List<PinDTO> pins; // 핀정보
+    private List<JournalReadDTO> itinerary; // 일일 일정
 
 
 }
