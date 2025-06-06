@@ -11,9 +11,8 @@ import java.util.List;
 public class PostUpdateDTO {
     // 게시글 수정
     private String title;
-    private String locationSummary; // 여행 방문지들 시드니, 오사카, 도쿄
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String locationSummary;
+    private DateRangeDTO dateRange;
     private List<PinDTO> pins;
     private List<JournalUpdateDTO> journalUpdate; // 일일 일정
 }

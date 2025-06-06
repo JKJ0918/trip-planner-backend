@@ -10,9 +10,8 @@ import java.util.List;
 @Setter
 public class JournalUpdateDTO {
 
-    private LocalDate date;             // 날짜별 구분
-    private String entryTitle;
-    private String entryDescription;
-    private List<String> imageUrls;     // 이미지는 URL 기반 수정
+    private String title;
+    private String content;
+    private List<String> images;
 
 }

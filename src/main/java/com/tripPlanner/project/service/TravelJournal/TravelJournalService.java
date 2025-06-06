@@ -168,56 +168,62 @@ public class TravelJournalService {
 
     // 게시글 수정
     @Transactional
-    public void updatePost(Long id, PostUpdateDTO dto, String extId){
-        TravelJournalEntity travel = travelJournalRepository.findById(id)
+    public void updatePost(Long id, PostUpdateDTO dto, String userId) {
+        TravelJournalEntity journal = travelJournalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
 
-        if (!travel.getUser().getId().equals(extId)){
+        if (!journal.getUser().getId().toString().equals(userId)) {
             throw new RuntimeException("작성자만 수정할 수 있습니다.");
         }
 
         // 기본 정보 업데이트
-        travel.setTitle(dto.getTitle());
-        travel.setLocationSummary(dto.getLocationSummary());
-        travel.setStartDate(dto.getStartDate());
-        travel.setEndDate(dto.getEndDate());
+        journal.setTitle(dto.getTitle());
+        journal.setLocationSummary(dto.getLocationSummary());
+        journal.setStartDate(LocalDate.parse(dto.getDateRange().getStartDate()));
+        journal.setEndDate(LocalDate.parse(dto.getDateRange().getEndDate()));
 
-        // pin 업데이트
-        travel.getPinEntities().clear(); // 기존 pin 정보 삭제
-        dto.getPins().forEach(pinDTO -> {
-            PinEntity pin = new PinEntity();
-            pin.setLat(pinDTO.getLat());
-            pin.setLng(pinDTO.getLng());
-            pin.setName(pinDTO.getName());
-            pin.setAddress(pinDTO.getAddress());;
-            pin.setCategory(pinDTO.getCategory());
-            pin.setTravelJournalPinEntity(travel);
-            travel.getPinEntities().add(pin);
+        // 핀 갱신
+        journal.getPinEntities().clear();
+        if (dto.getPins() != null) {
+            for (PinDTO pinDTO : dto.getPins()) {
+                PinEntity pin = new PinEntity();
+                pin.setLat(pinDTO.getLat());
+                pin.setLng(pinDTO.getLng());
+                pin.setName(pinDTO.getName());
+                pin.setAddress(pinDTO.getAddress());
+                pin.setCategory(pinDTO.getCategory());
+                pin.setTravelJournalPinEntity(journal);
+                journal.getPinEntities().add(pin);
+            }
+        }
 
-        });
+        // 일일 일정 갱신
+        journal.getJournalEntities().clear();
+        if (dto.getJournalUpdate() != null) {
+            LocalDate current = journal.getStartDate();
 
-        // 일일 일정 업데이트
-        travel.getJournalEntities().clear(); // 기존 일정 삭제
-        dto.getJournalUpdate().forEach(journalUpdateDTO -> {
-            JournalEntity journal = new JournalEntity();
-            journal.setDate(journalUpdateDTO.getDate());
-            journal.setTitle(journalUpdateDTO.getEntryTitle());
-            journal.setDescription(journalUpdateDTO.getEntryDescription());
-            journal.setTravelJournalEntity(travel);
+            for (JournalUpdateDTO entry : dto.getJournalUpdate()) {
+                JournalEntity journalEntity = new JournalEntity();
+                journalEntity.setTitle(entry.getTitle());
+                journalEntity.setDescription(entry.getContent());
+                journalEntity.setDate(current);
+                journalEntity.setTravelJournalEntity(journal);
 
+                // 이미지들
+                List<PhotoEntity> photos = entry.getImages().stream().map(url -> {
+                    PhotoEntity photo = new PhotoEntity();
+                    photo.setUrl(url);
+                    photo.setJournalEntity(journalEntity);
+                    return photo;
+                }).collect(Collectors.toList());
 
-            // 이미지 경로만 등록
-            List<PhotoEntity> photos = journalUpdateDTO.getImageUrls().stream().map(url ->{
-                PhotoEntity photo = new PhotoEntity();
-                photo.setUrl(url);
-                photo.setJournalEntity(journal);
-                return photo;
-            }).collect(Collectors.toList());
+                journalEntity.setPhotos(photos);
+                journal.getJournalEntities().add(journalEntity);
 
-            journal.setPhotos(photos);
-            travel.getJournalEntities().add(journal);
-        });
+                current = current.plusDays(1); // 다음 날짜로 이동
+            }
+        }
+    }
 
-    } // end updatePost
 
 }

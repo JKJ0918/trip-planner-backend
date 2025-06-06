@@ -4,13 +4,12 @@ import com.tripPlanner.project.service.images.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -33,4 +32,37 @@ public class ImageUploadController {
         }
     }
 
+    // 게시글 수정 이미지 업로드
+    @PostMapping("/edit/upload")
+    public ResponseEntity<Map<String, List<String>>> uploadMultipleImages(@RequestPart("files") MultipartFile[] files) {
+        try {
+            List<String> urls = new ArrayList<>();
+            for (MultipartFile file : files) {
+                String imageUrl = imageStorageService.save(file);
+                urls.add(imageUrl);
+            }
+
+            Map<String, List<String>> response = new HashMap<>();
+            response.put("imageUrls", urls);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", List.of(e.getMessage())));
+        }
+    }
+
+
+    // 게시글 수정 이미지 삭제 요청
+    @PostMapping("/edit/delete")
+    public ResponseEntity<String> deleteImages(@RequestBody Map<String, List<String>> payload) {
+        List<String> imageUrls = payload.get("imageUrls");
+        for (String url : imageUrls) {
+            try {
+                imageStorageService.delete(url); // 아래에 메서드 추가해야 함
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.ok("삭제 완료");
+    }
 }

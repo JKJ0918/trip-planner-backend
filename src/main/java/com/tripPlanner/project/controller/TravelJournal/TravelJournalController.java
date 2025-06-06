@@ -45,7 +45,6 @@ public class TravelJournalController {
 
         String extId = userEntity.getId().toString();
         return ResponseEntity.ok(Map.of("userId", extId));
-
     }
 
    // 게시글 리스트 (여행일지 가져오기) 페이지,
@@ -59,16 +58,16 @@ public class TravelJournalController {
         return ResponseEntity.ok(result);
     }
 
-    // 게시글 상세 페이지
+    // 특정 게시물 가져오기 (상세 페이지, 게시글 수정)
     @GetMapping("/public/{id}")
     public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long id){
 
         return travelJournalService.getPostDetailById(id);
     }
 
-    // 게글 수정
+    // 게시글 수정
     @PutMapping("/public/edit/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id,
+    public ResponseEntity<?> updatePost(@PathVariable("id") Long id,
                                         @RequestBody PostUpdateDTO dto,
                                         HttpServletRequest request) {
 

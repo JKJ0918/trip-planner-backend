@@ -126,11 +126,11 @@ public class SecurityConfig {
                         .requestMatchers("/join","/login","/main").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
                         .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
-                        .requestMatchers("/api/flights", "/api/locations",
-                                "/api/images/upload", "/api/journals/auth/me", "/api/journals").permitAll() // 항공권 검색, 초반 위치 목록, 이미지 업로드,
+                        .requestMatchers( "/api/locations", "/api/journals/auth/me", "/api/journals").permitAll() // 초반 위치 목록, 
                         .requestMatchers("/api/journals/public","/api/journals/public/{id}" ).permitAll() // 게시글 목록, 게시물 상세보기
                         .requestMatchers("/api/journals/public/edit/{id}" ).permitAll() // 게시글 수정
-                        
+                        .requestMatchers("/api/images/upload","/api/images/edit/upload", "/api/images/edit/delete" ).permitAll() // 게시글 이미지 관련
+
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS

@@ -36,4 +36,12 @@ public class LocalImageStorageService implements ImageStorageService{
         // 서버에서 접근 가능한 URL로 변경
         return "/uploads/" + fileName;
     }
+
+    @Override
+    public void delete(String imageUrl) throws IOException {
+        String filename = imageUrl.replace("/uploads/", "");
+        Path filePath = Paths.get(uploadDir).resolve(filename);
+        Files.deleteIfExists(filePath);
+    }
+
 }
