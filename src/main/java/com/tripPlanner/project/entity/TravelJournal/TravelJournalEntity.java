@@ -34,7 +34,7 @@ public class TravelJournalEntity {
     private LocalDate endDate;
 
 
-    @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PinEntity> pinEntities = new ArrayList<>();
 
