@@ -1,0 +1,133 @@
+package com.tripPlanner.project.controller.travelJournal;
+
+import com.tripPlanner.project.dto.travelJournal.PostUpdateDTO;
+import com.tripPlanner.project.dto.travelJournal.TravelJournalRequestDTO;
+import com.tripPlanner.project.dto.travelJournal.TravelPostDetailDTO;
+import com.tripPlanner.project.dto.travelJournal.TravelPostSummaryDTO;
+import com.tripPlanner.project.entity.UserEntity;
+import com.tripPlanner.project.jwt.JWTUtil;
+import com.tripPlanner.project.repository.UserRepository;
+import com.tripPlanner.project.service.travelJournal.TravelJournalService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/journals")
+@RequiredArgsConstructor
+public class TravelJournalController {
+
+    private final TravelJournalService travelJournalService;
+    private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    // 여행일정 추가
+    @PostMapping
+    public ResponseEntity<?> save(@RequestBody TravelJournalRequestDTO request) throws IllegalAccessException {
+        Long id = travelJournalService.saveTravelJournal(request);
+        return ResponseEntity.ok(Map.of("journalId", id));
+    }
+
+    // 유저 정보 받아오기
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
+
+        String token = extractAccessToken(request);
+        String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
+        String socialType = jwtUtil.getSocialType(token);
+
+        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
+
+        String extId = userEntity.getId().toString();
+        return ResponseEntity.ok(Map.of("userId", extId));
+    }
+
+   // 게시글 리스트 (여행일지 가져오기) 페이지,
+    @GetMapping("/public")
+    public ResponseEntity<Page<TravelPostSummaryDTO>> getPublicJournals(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "keyword", required = false) String keyword
+    ) {
+        Page<TravelPostSummaryDTO> result = travelJournalService.getPublicJournals(page, size, keyword);
+        return ResponseEntity.ok(result);
+    }
+
+    // 특정 게시물 가져오기 (상세 페이지, 게시글 수정)
+    @GetMapping("/public/{id}")
+    public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long id){
+
+        return travelJournalService.getPostDetailById(id);
+    }
+
+    // 게시글 수정
+    @PutMapping("/public/edit/{id}")
+    public ResponseEntity<?> updatePost(@PathVariable("id") Long id,
+                                        @RequestBody PostUpdateDTO dto,
+                                        HttpServletRequest request) {
+
+        String token = extractAccessToken(request);
+        String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
+        String socialType = jwtUtil.getSocialType(token);
+
+        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
+
+        String extId = userEntity.getId().toString();
+
+        travelJournalService.updatePost(id, dto, extId);
+        return ResponseEntity.ok("수정 완료");
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/public/delete/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable("id") Long id,
+                                        HttpServletRequest request){
+
+        System.out.println("삭제 되나요?");
+
+        try {
+            String token = extractAccessToken(request);
+            String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
+            String socialType = jwtUtil.getSocialType(token);
+
+            UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
+
+            String extId = userEntity.getId().toString();
+
+            travelJournalService.deletePost(id, extId);
+
+            return ResponseEntity.ok().body("삭제 완료");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제 실패" + e.getMessage());
+        }
+
+
+    }
+
+
+    // 토큰 추출
+    private String extractAccessToken(HttpServletRequest request){
+        // 1. OAuth2 방식: 쿠키에서 찾기
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        // 2. JWT 방식: 헤더에서 찾기
+        String header = request.getHeader("access");
+
+        return null;
+    }
+
+
+}
