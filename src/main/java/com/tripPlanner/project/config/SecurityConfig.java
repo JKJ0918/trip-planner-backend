@@ -127,7 +127,7 @@ public class SecurityConfig {
                         .requestMatchers("/reissue").permitAll() // refresh Token
                         .requestMatchers("/api/user/additional-info","/socialJoin").permitAll()//hasRole("USER_ROLE_A") // refresh Token
                         .requestMatchers( "/api/locations", "/api/journals/auth/me", "/api/journals").permitAll() // 초반 위치 목록, 
-                        .requestMatchers("/api/journals/public","/api/journals/public/{id}" ).permitAll() // 게시글 목록, 게시물 상세보기
+                        .requestMatchers("/api/journals/public","/api/journals/public/{id}", "/api/journals/public/delete/{id}" ).permitAll() // 게시글 목록, 게시글 상세보기, 게시글 삭제
                         .requestMatchers("/api/journals/public/edit/{id}" ).permitAll() // 게시글 수정
                         .requestMatchers("/api/images/upload","/api/images/edit/upload", "/api/images/edit/delete" ).permitAll() // 게시글 이미지 관련
 

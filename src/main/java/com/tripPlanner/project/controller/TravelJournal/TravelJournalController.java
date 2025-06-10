@@ -12,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,6 +82,32 @@ public class TravelJournalController {
 
         travelJournalService.updatePost(id, dto, extId);
         return ResponseEntity.ok("수정 완료");
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/public/delete/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable("id") Long id,
+                                        HttpServletRequest request){
+
+        System.out.println("삭제 되나요?");
+
+        try {
+            String token = extractAccessToken(request);
+            String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
+            String socialType = jwtUtil.getSocialType(token);
+
+            UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
+
+            String extId = userEntity.getId().toString();
+
+            travelJournalService.deletePost(id, extId);
+
+            return ResponseEntity.ok().body("삭제 완료");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제 실패" + e.getMessage());
+        }
+
+
     }
 
 

@@ -14,5 +14,5 @@ public class PostUpdateDTO {
     private String locationSummary;
     private DateRangeDTO dateRange;
     private List<PinDTO> pins;
-    private List<JournalUpdateDTO> journalUpdate; // 일일 일정
+    private List<JournalUpdateDTO> itinerary; // 일일 일정 *프론트의 JSON 타입과 맞춰줌
 }

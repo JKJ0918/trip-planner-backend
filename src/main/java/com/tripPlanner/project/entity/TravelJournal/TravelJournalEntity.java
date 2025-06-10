@@ -38,7 +38,7 @@ public class TravelJournalEntity {
     @Builder.Default
     private List<PinEntity> pinEntities = new ArrayList<>();
 
-    @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<JournalEntity> journalEntities = new ArrayList<>(); // 일일 일정
 

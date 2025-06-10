@@ -199,10 +199,10 @@ public class TravelJournalService {
 
         // 일일 일정 갱신
         journal.getJournalEntities().clear();
-        if (dto.getJournalUpdate() != null) {
+        if (dto.getItinerary() != null) {
             LocalDate current = journal.getStartDate();
 
-            for (JournalUpdateDTO entry : dto.getJournalUpdate()) {
+            for (JournalUpdateDTO entry : dto.getItinerary()) {
                 JournalEntity journalEntity = new JournalEntity();
                 journalEntity.setTitle(entry.getTitle());
                 journalEntity.setDescription(entry.getContent());
@@ -223,6 +223,20 @@ public class TravelJournalService {
                 current = current.plusDays(1); // 다음 날짜로 이동
             }
         }
+    }
+
+    // 게시글 삭제
+    public void deletePost(Long journalId, String userId) throws IllegalAccessException{
+        
+        TravelJournalEntity journal = travelJournalRepository.findById(journalId)
+                .orElseThrow(() ->new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!journal.getUser().getId().toString().equals(userId)){
+                throw new IllegalAccessException("삭제 권한이 없습니다.");
+        }
+
+        travelJournalRepository.delete(journal);
+
     }
 
 
