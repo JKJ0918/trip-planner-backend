@@ -9,6 +9,7 @@ import com.tripPlanner.project.service.comments.CommentService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,13 +37,37 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    // 댓글 불러오기
+    /* 댓글 불러오기_무한 스크롤 구현중
     @GetMapping("/{journalId}")
     public ResponseEntity<List<CommentResponseDTO>> getComments(@PathVariable("journalId") Long journalId,
                                                                 HttpServletRequest request){
         Long userId = extractUserIdFromRequest(request);
         return ResponseEntity.ok(commentService.getComments(journalId, userId));
+    }*/
+
+    // 댓글 불러오기_무한스크롤 구현
+    @GetMapping("/{journalId}")
+    public ResponseEntity<Page<CommentResponseDTO>> getTopLevelComments(
+            @PathVariable("journalId") Long journalId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "2") int size,
+            HttpServletRequest request
+    ) {
+        Long userId = extractUserIdFromRequest(request);
+        Page<CommentResponseDTO> result = commentService.getTopLevelComments(journalId, userId, page, size);
+        return ResponseEntity.ok(result);
     }
+
+    // 대댓글 불러오기
+    @GetMapping("/{parentId}/replies")
+    public ResponseEntity<List<CommentResponseDTO>> getReplies(
+            @PathVariable Long parentId,
+            HttpServletRequest request
+    ) {
+        Long userId = extractUserIdFromRequest(request);
+        return ResponseEntity.ok(commentService.getReplies(parentId, userId));
+    }
+
 
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
