@@ -36,7 +36,7 @@ public class JoinService {
         data.setName(name);
         data.setEmail(email);
         data.setRole("ROLE_USER");
-        data.setSocialType("none");
+        data.setSocialType("localUser");
 
         userRepository.save(data);
     }

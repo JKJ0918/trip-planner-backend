@@ -168,11 +168,11 @@ public class TravelJournalService {
 
     // 게시글 수정
     @Transactional
-    public void updatePost(Long id, PostUpdateDTO dto, String userId) {
+    public void updatePost(Long id, PostUpdateDTO dto, Long userId) {
         TravelJournalEntity journal = travelJournalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
 
-        if (!journal.getUser().getId().toString().equals(userId)) {
+        if (!journal.getUser().getId().equals(userId)) {
             throw new RuntimeException("작성자만 수정할 수 있습니다.");
         }
 
@@ -226,12 +226,12 @@ public class TravelJournalService {
     }
 
     // 게시글 삭제
-    public void deletePost(Long journalId, String userId) throws IllegalAccessException{
+    public void deletePost(Long journalId, Long userId) throws IllegalAccessException{
         
         TravelJournalEntity journal = travelJournalRepository.findById(journalId)
                 .orElseThrow(() ->new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        if (!journal.getUser().getId().toString().equals(userId)){
+        if (!journal.getUser().getId().equals(userId)){ // Java에서는 Long == Long은 참조 비교이므로 .equals() 사용
                 throw new IllegalAccessException("삭제 권한이 없습니다.");
         }
 

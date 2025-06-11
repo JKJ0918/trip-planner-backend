@@ -100,10 +100,18 @@ public class CommentController {
     // 토큰에서 Long userId 추출
     private Long extractUserIdFromRequest(HttpServletRequest request) {
         String token = extractAccessToken(request);
+
         String name = jwtUtil.getUsername(token);
         String socialType = jwtUtil.getSocialType(token);
-        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
-        return userEntity.getId();
+
+        UserEntity user = new UserEntity();
+        if(socialType.equals("localUser")){
+            user = userRepository.findByUsernameAndSocialType(name, "localUser");
+        }else {
+            user = userRepository.findByNameAndSocialType(name, socialType);
+        }
+
+        return user.getId();
     }
 
 

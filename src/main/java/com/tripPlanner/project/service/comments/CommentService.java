@@ -72,6 +72,7 @@ public class CommentService {
                 .createdAt(c.getCreatedAt())
                 .parentId(c.getParent() != null ? c.getParent().getId() : null)
                 .edited(c.isEdited())
+                .isAuthor(c.getUser().getId().equals(userId)) // 작성자 여부 판단
                 .likeCount(c.getLikes().size())                     // or commentLikeRepository.countByComment(c)
                 .likedByMe(likedCommentIds.contains(c.getId()))     // 로그인 유저 기준
                 .build()

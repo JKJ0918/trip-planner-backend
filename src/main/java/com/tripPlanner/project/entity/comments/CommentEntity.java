@@ -24,6 +24,7 @@ public class CommentEntity {
 
     private String content;
 
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간
 
     @ManyToOne(fetch = FetchType.LAZY)

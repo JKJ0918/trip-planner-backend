@@ -38,13 +38,8 @@ public class TravelJournalController {
     @GetMapping("/auth/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
 
-        String token = extractAccessToken(request);
-        String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
-        String socialType = jwtUtil.getSocialType(token);
-
-        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
-
-        String extId = userEntity.getId().toString();
+        Long userId = extractUserIdFromRequest(request);
+        String extId = userId.toString();
         return ResponseEntity.ok(Map.of("userId", extId));
     }
 
@@ -72,15 +67,8 @@ public class TravelJournalController {
                                         @RequestBody PostUpdateDTO dto,
                                         HttpServletRequest request) {
 
-        String token = extractAccessToken(request);
-        String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
-        String socialType = jwtUtil.getSocialType(token);
-
-        UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
-
-        String extId = userEntity.getId().toString();
-
-        travelJournalService.updatePost(id, dto, extId);
+        Long userId = extractUserIdFromRequest(request);
+        travelJournalService.updatePost(id, dto, userId);
         return ResponseEntity.ok("수정 완료");
     }
 
@@ -92,16 +80,8 @@ public class TravelJournalController {
         System.out.println("삭제 되나요?");
 
         try {
-            String token = extractAccessToken(request);
-            String name = jwtUtil.getUsername(token); // 토큰 상에는 사용자의 실명이 나타남
-            String socialType = jwtUtil.getSocialType(token);
-
-            UserEntity userEntity = userRepository.findByNameAndSocialType(name, socialType);
-
-            String extId = userEntity.getId().toString();
-
-            travelJournalService.deletePost(id, extId);
-
+            Long userId = extractUserIdFromRequest(request);
+            travelJournalService.deletePost(id, userId);
             return ResponseEntity.ok().body("삭제 완료");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제 실패" + e.getMessage());
@@ -129,5 +109,21 @@ public class TravelJournalController {
         return null;
     }
 
+    // 토큰에서 Long userId 추출
+    private Long extractUserIdFromRequest(HttpServletRequest request) {
+        String token = extractAccessToken(request);
+
+        String name = jwtUtil.getUsername(token);
+        String socialType = jwtUtil.getSocialType(token);
+
+        UserEntity user = new UserEntity();
+        if(socialType.equals("localUser")){
+            user = userRepository.findByUsernameAndSocialType(name, "localUser");
+        }else {
+            user = userRepository.findByNameAndSocialType(name, socialType);
+        }
+
+        return user.getId();
+    }
 
 }
