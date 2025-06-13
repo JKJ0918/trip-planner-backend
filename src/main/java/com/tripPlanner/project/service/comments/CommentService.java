@@ -11,8 +11,7 @@ import com.tripPlanner.project.repository.comments.CommentLikeRepository;
 import com.tripPlanner.project.repository.comments.CommentRepository;
 import com.tripPlanner.project.repository.travelJournal.TravelJournalRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,36 +54,17 @@ public class CommentService {
 
     }
 
-    /* 댓글 가져오기 - _무한 스크롤 페이징 구현중
-    public List<CommentResponseDTO> getComments(Long journalId, Long userId){
-        List<CommentEntity> comments = commentRepository.findByTravelJournal_IdOrderByCreatedAtAsc(journalId);
-        UserEntity user = userRepository.findById(userId) // 나의 좋아요 여부알기 위함
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
-        // 유저가 좋아요 누른 댓글들 미리 조회
-        List<CommentLikeEntity> liked = commentLikeRepository.findByUserAndCommentIn(user, comments);
-        Set<Long> likedCommentIds = liked.stream()
-                .map(like -> like.getComment().getId())
-                .collect(Collectors.toSet());
+    // 댓글 가져오기 - 무한 스크롤 + 정렬 기능 추가
+    public Page<CommentResponseDTO> getTopLevelComments(Long journalId, Long userId, int page, int size, String sort) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CommentEntity> commentPage;
 
-        return comments.stream().map(c -> CommentResponseDTO.builder()
-                .id(c.getId())
-                .content(c.getContent())
-                .writerName(c.getUser().getNickname())
-                .createdAt(c.getCreatedAt())
-                .parentId(c.getParent() != null ? c.getParent().getId() : null)
-                .edited(c.isEdited())
-                .isAuthor(c.getUser().getId().equals(userId)) // 작성자 여부 판단
-                .likeCount(c.getLikes().size())                     // or commentLikeRepository.countByComment(c)
-                .likedByMe(likedCommentIds.contains(c.getId()))     // 로그인 유저 기준
-                .build()
-        ).toList();
-    } */
-
-    // 댓글 가져오기 - 무한 스크롤 구현
-    public Page<CommentResponseDTO> getTopLevelComments(Long journalId, Long userId, int page, int size) {
-        Page<CommentEntity> commentPage = commentRepository
-                .findByTravelJournalIdAndParentIsNullOrderByCreatedAtAsc(journalId, PageRequest.of(page, size));
+        if ("popular".equals(sort)) {
+            commentPage = commentRepository.findTopLevelCommentsByJournalIdOrderByLikesDesc(journalId, pageable);
+        } else {
+            commentPage = commentRepository.findTopLevelCommentsByJournalIdOrderByCreatedAtDesc(journalId, pageable);
+        }
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
@@ -94,21 +74,21 @@ public class CommentService {
                 .map(like -> like.getComment().getId())
                 .collect(Collectors.toSet());
 
-        // Entity → DTO 변환
-        Page<CommentResponseDTO> result = commentPage.map(c -> CommentResponseDTO.builder()
+        return commentPage.map(c -> CommentResponseDTO.builder()
                 .id(c.getId())
                 .content(c.getContent())
                 .writerName(c.getUser().getNickname())
                 .createdAt(c.getCreatedAt())
                 .parentId(null)
                 .edited(c.isEdited())
+                .replyCount(c.getChildren().size())
                 .isAuthor(c.getUser().getId().equals(userId))
                 .likeCount(c.getLikes().size())
                 .likedByMe(likedCommentIds.contains(c.getId()))
                 .build());
-
-        return result;
     }
+
+
 
     // 대댓글 가져오기
     public List<CommentResponseDTO> getReplies(Long parentId, Long userId) {

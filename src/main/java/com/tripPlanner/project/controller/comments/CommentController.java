@@ -50,18 +50,21 @@ public class CommentController {
     public ResponseEntity<Page<CommentResponseDTO>> getTopLevelComments(
             @PathVariable("journalId") Long journalId,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "2") int size,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sort", defaultValue = "recent") String sort,
             HttpServletRequest request
     ) {
         Long userId = extractUserIdFromRequest(request);
-        Page<CommentResponseDTO> result = commentService.getTopLevelComments(journalId, userId, page, size);
+        Page<CommentResponseDTO> result = commentService.getTopLevelComments(journalId, userId, page, size, sort);
         return ResponseEntity.ok(result);
     }
+
+
 
     // 대댓글 불러오기
     @GetMapping("/{parentId}/replies")
     public ResponseEntity<List<CommentResponseDTO>> getReplies(
-            @PathVariable Long parentId,
+            @PathVariable("parentId") Long parentId,
             HttpServletRequest request
     ) {
         Long userId = extractUserIdFromRequest(request);

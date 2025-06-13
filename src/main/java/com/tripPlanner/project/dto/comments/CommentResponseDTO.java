@@ -17,6 +17,7 @@ public class CommentResponseDTO {
     private String writerName;
     private LocalDateTime createdAt;
     private Long parentId; // 대댓글
+    private int replyCount; // 대 댓글 수
     private boolean edited; // 수정
     
     private boolean isAuthor; // 로그인 유저가 작성자인지 여부

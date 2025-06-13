@@ -130,7 +130,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/journals/public","/api/journals/public/{id}", "/api/journals/public/delete/{id}" ).permitAll() // 게시글 목록, 게시글 상세보기, 게시글 삭제
                         .requestMatchers("/api/journals/public/edit/{id}" ).permitAll() // 게시글 수정
                         .requestMatchers("/api/images/upload","/api/images/edit/upload", "/api/images/edit/delete" ).permitAll() // 게시글 이미지 관련
-                        .requestMatchers("/api/comments/{journalId}").permitAll() // 댓글 관련
+                        .requestMatchers("/api/comments/**").authenticated() // 댓글 관련
 
                         .anyRequest().authenticated());
 
