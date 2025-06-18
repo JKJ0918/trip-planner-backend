@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,6 @@ public class JournalReadDTO {
     private String title;   // 일정 제목
     private String content; // 일정 상세 내용 
     private List<String> images; // 이미지 URL 목록
+    private LocalDate date; // 일별 일정 날짜
 
 }

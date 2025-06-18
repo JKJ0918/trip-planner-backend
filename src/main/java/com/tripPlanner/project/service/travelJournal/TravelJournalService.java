@@ -131,7 +131,8 @@ public class TravelJournalService {
                         item.getDescription(),
                         item.getPhotos().stream()
                                 .map(PhotoEntity::getUrl)
-                                .toList()
+                                .toList(),
+                        item.getDate() // 일별 날짜 받아옴
                 )).toList();
         // 썸네일 동적 추출
         String thumbnailUrl = null;
@@ -206,7 +207,7 @@ public class TravelJournalService {
                 JournalEntity journalEntity = new JournalEntity();
                 journalEntity.setTitle(entry.getTitle());
                 journalEntity.setDescription(entry.getContent());
-                journalEntity.setDate(current);
+                journalEntity.setDate(entry.getDate());
                 journalEntity.setTravelJournalEntity(journal);
 
                 // 이미지들

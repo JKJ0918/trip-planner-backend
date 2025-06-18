@@ -19,7 +19,7 @@ public class JournalEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate date;
+    private LocalDate date; // 일별 일정 날짜
     private String title;
     private String description;
 
