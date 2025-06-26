@@ -43,6 +43,18 @@ public class TravelJournalService {
                 .title(requestDTO.getTitle())
                 .locationSummary(requestDTO.getLocationSummary())
                 .isPublic(requestDTO.getIsPublic())
+                .useFlight(requestDTO.getUseFlight())
+                .flightDepartureAirline(requestDTO.getFlightDepartureAirline())
+                .flightDepartureName(requestDTO.getFlightDepartureName())
+                .flightDepartureTime(requestDTO.getFlightDepartureTime())
+                .flightReturnAirline(requestDTO.getFlightReturnAirline())
+                .flightReturnName(requestDTO.getFlightReturnName())
+                .flightReturnTime(requestDTO.getFlightReturnTime())
+                .travelTrans(requestDTO.getTravelTrans())
+                .totalBudget(requestDTO.getTotalBudget())
+                .travelTheme(requestDTO.getTravelTheme())
+                .review(requestDTO.getReview())
+                .isAfterTravel(requestDTO.getIsAfterTravel())
                 .build();
 
         // 3. Pins 추가
@@ -54,7 +66,14 @@ public class TravelJournalService {
                         .name(pinDTO.getName())
                         .category(pinDTO.getCategory())
                         .address(pinDTO.getAddress())
-                        .travelJournalPinEntity(travelJournalEntity) // TravelJournalEntity의 자식 리스트에 PinEntity를 추가
+                        .images(pinDTO.getImages())
+                        .minCost(pinDTO.getMinCost())
+                        .maxCost(pinDTO.getMaxCost())
+                        .currency(pinDTO.getCurrency())
+                        .openTime(pinDTO.getOpenTime())
+                        .closeTime(pinDTO.getCloseTime())
+                        .description(pinDTO.getDescription())
+                        .travelJournalPinEntity(travelJournalEntity)
                         .build();
 
                 travelJournalEntity.getPinEntities().add(pin);
@@ -120,8 +139,20 @@ public class TravelJournalService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
         List<PinDTO> pins = journal.getPinEntities().stream().map(pin -> new PinDTO(
-                pin.getLat(), pin.getLng(), pin.getName(), pin.getAddress(), pin.getCategory()
-        )).toList(); // pin 정보
+                pin.getLat(),
+                pin.getLng(),
+                pin.getName(),
+                pin.getAddress(),
+                pin.getCategory(),
+                pin.getImages(),               // 이미지 리스트
+                pin.getMinCost(),
+                pin.getMaxCost(),
+                pin.getCurrency(),
+                pin.getOpenTime(),
+                pin.getCloseTime(),
+                pin.getDescription()
+        )).toList();
+
 
         AtomicInteger dayCounter = new AtomicInteger(1);
         List<JournalReadDTO> itinerary = journal.getJournalEntities().stream()
@@ -146,11 +177,25 @@ public class TravelJournalService {
                 journal.getId(),
                 journal.getTitle(),
                 journal.getLocationSummary(),
+                journal.getUseFlight(),
+                journal.getFlightDepartureAirline(),
+                journal.getFlightDepartureName(),
+                journal.getFlightDepartureTime(),
+                journal.getFlightReturnAirline(),
+                journal.getFlightReturnName(),
+                journal.getFlightReturnTime(),
+                journal.getTravelTrans(),
+                journal.getTotalBudget(),
+                journal.getTravelTheme(),
+                journal.getReview(),
+                journal.getIsAfterTravel(),
                 new DateRangeDTO(journal.getStartDate().toString(), journal.getEndDate().toString()),
                 thumbnailUrl, // 경로 확인 필수
                 journal.getUser().getNickname(), // 유저 테이블과 연관됨
                 pins,
                 itinerary
+                // 아래 추가 필드들
+
         );
     }
 

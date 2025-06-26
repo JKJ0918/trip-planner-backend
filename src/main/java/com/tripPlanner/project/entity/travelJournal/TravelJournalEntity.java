@@ -30,6 +30,22 @@ public class TravelJournalEntity {
     private String locationSummary; // 여행 도시
     private boolean isPublic; // 게시글 공개 여부
 
+    private Boolean useFlight; // 항공기 탑승 여부
+
+    private String flightDepartureAirline;
+    private String flightDepartureName;
+    private String flightDepartureTime;
+    private String flightReturnAirline;
+    private String flightReturnName;
+    private String flightReturnTime;
+
+    private String travelTrans;
+    private String totalBudget;
+    private String travelTheme;
+    private String review;
+    private Boolean isAfterTravel;
+
+
     private LocalDate startDate;
     private LocalDate endDate;
 

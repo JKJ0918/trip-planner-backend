@@ -16,7 +16,20 @@ public class TravelPostDetailDTO {
     private Long id;
     private String title;
     private String locationSummary;
-    
+
+    private Boolean useFlight;
+    private String flightDepartureAirline;
+    private String flightDepartureName;
+    private String flightDepartureTime;
+    private String flightReturnAirline;
+    private String flightReturnName;
+    private String flightReturnTime;
+    private String travelTrans;
+    private String totalBudget;
+    private String travelTheme;
+    private String review;
+    private Boolean isAfterTravel;
+
     private DateRangeDTO dateRange;
     private String thumbnailUrl;
     private String authorNickname;

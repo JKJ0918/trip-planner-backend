@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor // 기본 생성자 자동 추가
@@ -18,6 +20,14 @@ public class PinDTO {
     private String name;
     private String category;
     private String address;
+    private List<String> images; // pin 이미지 저장
+
+    private String minCost;
+    private String maxCost;
+    private String currency;
+    private String openTime;
+    private String closeTime;
+    private String description;
 
 
 }

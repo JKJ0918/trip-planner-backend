@@ -27,7 +27,7 @@ public class TravelJournalController {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
-    // 여행일정 추가
+    // 게시글 추가
     @PostMapping
     public ResponseEntity<?> save(@RequestBody TravelJournalRequestDTO request) throws IllegalAccessException {
         Long id = travelJournalService.saveTravelJournal(request);
