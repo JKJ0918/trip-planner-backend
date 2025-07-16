@@ -28,7 +28,8 @@ public class TravelJournalService {
 
     private final UserRepository userRepository;
     private final TravelJournalRepository travelJournalRepository;
-
+    
+    // 게시글 저장
     public Long saveTravelJournal(TravelJournalRequestDTO requestDTO) throws IllegalAccessException {
 
         // 1. 유저조회
@@ -42,14 +43,19 @@ public class TravelJournalService {
                 .endDate(LocalDate.parse(requestDTO.getEndDate()))
                 .title(requestDTO.getTitle())
                 .locationSummary(requestDTO.getLocationSummary())
+                .description(requestDTO.getDescription())
                 .isPublic(requestDTO.getIsPublic())
                 .useFlight(requestDTO.getUseFlight())
                 .flightDepartureAirline(requestDTO.getFlightDepartureAirline())
                 .flightDepartureName(requestDTO.getFlightDepartureName())
                 .flightDepartureTime(requestDTO.getFlightDepartureTime())
+                .flightDepartureAirport(requestDTO.getFlightDepartureAirport())
+                .flightArrivalAirport(requestDTO.getFlightArrivalAirport())
                 .flightReturnAirline(requestDTO.getFlightReturnAirline())
                 .flightReturnName(requestDTO.getFlightReturnName())
                 .flightReturnTime(requestDTO.getFlightReturnTime())
+                .flightReturnDepartureAirport(requestDTO.getFlightReturnDepartureAirport())
+                .flightReturnArrivalAirport(requestDTO.getFlightReturnArrivalAirport())
                 .travelTrans(requestDTO.getTravelTrans())
                 .totalBudget(requestDTO.getTotalBudget())
                 .travelTheme(requestDTO.getTravelTheme())
@@ -142,8 +148,8 @@ public class TravelJournalService {
                 pin.getLat(),
                 pin.getLng(),
                 pin.getName(),
-                pin.getAddress(),
                 pin.getCategory(),
+                pin.getAddress(),
                 pin.getImages(),               // 이미지 리스트
                 pin.getMinCost(),
                 pin.getMaxCost(),
@@ -177,13 +183,18 @@ public class TravelJournalService {
                 journal.getId(),
                 journal.getTitle(),
                 journal.getLocationSummary(),
+                journal.getDescription(),
                 journal.getUseFlight(),
                 journal.getFlightDepartureAirline(),
                 journal.getFlightDepartureName(),
                 journal.getFlightDepartureTime(),
+                journal.getFlightDepartureAirport(),
+                journal.getFlightArrivalAirport(),
                 journal.getFlightReturnAirline(),
                 journal.getFlightReturnName(),
                 journal.getFlightReturnTime(),
+                journal.getFlightReturnDepartureAirport(),
+                journal.getFlightReturnArrivalAirport(),
                 journal.getTravelTrans(),
                 journal.getTotalBudget(),
                 journal.getTravelTheme(),

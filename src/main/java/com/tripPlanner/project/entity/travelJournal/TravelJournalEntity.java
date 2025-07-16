@@ -28,6 +28,7 @@ public class TravelJournalEntity {
 
     private String title; // 게시글 제목
     private String locationSummary; // 여행 도시
+    private String description; // 내용
     private boolean isPublic; // 게시글 공개 여부
 
     private Boolean useFlight; // 항공기 탑승 여부
@@ -35,9 +36,13 @@ public class TravelJournalEntity {
     private String flightDepartureAirline;
     private String flightDepartureName;
     private String flightDepartureTime;
+    private String flightDepartureAirport; // 출국편 출발공항
+    private String flightArrivalAirport; // 출국편 도착공항
     private String flightReturnAirline;
     private String flightReturnName;
     private String flightReturnTime;
+    private String flightReturnDepartureAirport; // 귀국편 출발 공항
+    private String flightReturnArrivalAirport; // 귀국편 도착 공항
 
     private String travelTrans;
     private String totalBudget;

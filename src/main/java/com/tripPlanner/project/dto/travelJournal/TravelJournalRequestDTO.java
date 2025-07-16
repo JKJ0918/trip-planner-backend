@@ -18,6 +18,7 @@ public class TravelJournalRequestDTO {
     private String userId; // 작성자 Id
     private String title; // 게시글 제목
     private String locationSummary; // 여행 도시
+    private String description; // 내용
     private Boolean isPublic; // 게시글 공개 여부
     // boolean isPublic 필드는 Java Bean 규칙상 getter가 isIsPublic()으로 생성 -> Boolean 으로 변경
 
@@ -26,9 +27,13 @@ public class TravelJournalRequestDTO {
     private String flightDepartureAirline;
     private String flightDepartureName;
     private String flightDepartureTime;
+    private String flightDepartureAirport; // 출국편 출발공항
+    private String flightArrivalAirport; // 출국편 도착공항
     private String flightReturnAirline;
     private String flightReturnName;
     private String flightReturnTime;
+    private String flightReturnDepartureAirport; // 귀국편 출발 공항
+    private String flightReturnArrivalAirport; // 귀국편 도착 공항
 
     private String travelTrans; // 교통 수단
     private String totalBudget;
