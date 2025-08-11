@@ -23,9 +23,6 @@ public class TravelJournalEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private UserEntity user;
-
     private String title; // 게시글 제목
     private String locationSummary; // 여행 도시
     private String description; // 내용
@@ -50,21 +47,24 @@ public class TravelJournalEntity {
     private String review;
     private Boolean isAfterTravel;
 
-
     private LocalDate startDate;
     private LocalDate endDate;
 
-
-    @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<PinEntity> pinEntities = new ArrayList<>();
+    private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용
 
     @OneToMany(mappedBy = "travelJournalEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<JournalEntity> journalEntities = new ArrayList<>(); // 일일 일정
 
+    @OneToMany(mappedBy = "travelJournalPinEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용
+    private List<PinEntity> pinEntities = new ArrayList<>(); // 핀 리스트
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
+
+
 
 
 

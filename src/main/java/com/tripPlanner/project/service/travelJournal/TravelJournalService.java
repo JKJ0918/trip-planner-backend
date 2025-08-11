@@ -233,13 +233,20 @@ public class TravelJournalService {
             throw new RuntimeException("작성자만 수정할 수 있습니다.");
         }
 
-        // 기본 정보 업데이트
+        // 1) 기본 정보 업데이트 (필요한 필드 추가)
         journal.setTitle(dto.getTitle());
         journal.setLocationSummary(dto.getLocationSummary());
-        journal.setStartDate(LocalDate.parse(dto.getDateRange().getStartDate()));
+        journal.setStartDate(LocalDate.parse(dto.getDateRange().getStartDate())); // "YYYY-MM-DD"
         journal.setEndDate(LocalDate.parse(dto.getDateRange().getEndDate()));
 
-        // 핀 갱신
+        // 선택: 아래 필드들도 DTO에 있다면 함께 세팅
+        // journal.setDescription(dto.getDescription());
+        // journal.setIsPublic(dto.getIsPublic());
+        // journal.setUseFlight(dto.getUseFlight());
+        // journal.setFlightDepartureAirline(dto.getFlightDepartureAirline());
+        // ... 나머지 flight/transport/budget/theme/review/isAfterTravel 등
+
+        // 2) 핀 갱신 (전체 교체 전략: orphanRemoval=true이므로 DB 정리 안전)
         journal.getPinEntities().clear();
         if (dto.getPins() != null) {
             for (PinDTO pinDTO : dto.getPins()) {
@@ -249,38 +256,49 @@ public class TravelJournalService {
                 pin.setName(pinDTO.getName());
                 pin.setAddress(pinDTO.getAddress());
                 pin.setCategory(pinDTO.getCategory());
+
+                // ← 프론트가 준 세부 필드 반영
+                pin.setMinCost(pinDTO.getMinCost());
+                pin.setMaxCost(pinDTO.getMaxCost());
+                pin.setCurrency(pinDTO.getCurrency());
+                pin.setOpenTime(pinDTO.getOpenTime());
+                pin.setCloseTime(pinDTO.getCloseTime());
+                pin.setDescription(pinDTO.getDescription());
+
+                // 이미지 URL들 저장 (ElementCollection)
+                pin.setImages(pinDTO.getImages());
+
                 pin.setTravelJournalPinEntity(journal);
                 journal.getPinEntities().add(pin);
             }
         }
 
-        // 일일 일정 갱신
+        // 3) 일일 일정 갱신 (전체 교체 전략)
         journal.getJournalEntities().clear();
         if (dto.getItinerary() != null) {
-            LocalDate current = journal.getStartDate();
-
             for (JournalUpdateDTO entry : dto.getItinerary()) {
                 JournalEntity journalEntity = new JournalEntity();
                 journalEntity.setTitle(entry.getTitle());
                 journalEntity.setDescription(entry.getContent());
-                journalEntity.setDate(entry.getDate());
+                journalEntity.setDate(entry.getDate()); // DTO가 LocalDate 이므로 그대로 세팅
+
                 journalEntity.setTravelJournalEntity(journal);
 
-                // 이미지들
-                List<PhotoEntity> photos = entry.getImages().stream().map(url -> {
-                    PhotoEntity photo = new PhotoEntity();
-                    photo.setUrl(url);
-                    photo.setJournalEntity(journalEntity);
-                    return photo;
-                }).collect(Collectors.toList());
+                // 사진 URL → PhotoEntity로 매핑
+                List<PhotoEntity> photos = (entry.getImages() == null ? List.<String>of() : entry.getImages())
+                        .stream()
+                        .map(url -> PhotoEntity.builder()
+                                .url(url)
+                                .journalEntity(journalEntity)
+                                .build())
+                        .toList();
 
                 journalEntity.setPhotos(photos);
                 journal.getJournalEntities().add(journalEntity);
-
-                current = current.plusDays(1); // 다음 날짜로 이동
             }
         }
     }
+
 
     // 게시글 삭제
     public void deletePost(Long journalId, Long userId) throws IllegalAccessException{
