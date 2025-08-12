@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -222,6 +222,23 @@ public class TravelJournalService {
         }
         return "https://your-default-thumbnail.com/default.jpg"; // 썸네일 없을 경우 기본값
     }
+
+    // 게시글 본인 확인
+    @Transactional(readOnly = true)
+    public Optional<MeResponse> getMe(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> new MeResponse(user.getId(), user.getNickname()));
+    }
+
+    // 게시글 본인 확인(필요한 경우 별도 메서드로 유지해도 됨)
+    @Transactional(readOnly = true)
+    public String getNicknameByUserId(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."))
+                .getNickname();
+    }
+
+    public record MeResponse(Long id, String nickname) {}
 
     // 게시글 수정
     @Transactional

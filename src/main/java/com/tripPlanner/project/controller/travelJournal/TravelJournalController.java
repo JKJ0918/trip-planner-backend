@@ -34,14 +34,22 @@ public class TravelJournalController {
         return ResponseEntity.ok(Map.of("journalId", id));
     }
 
-    // 유저 정보 받아오기
+    // 유저 정보 받아오기 - 컨트롤러
     @GetMapping("/auth/me")
-    public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
-
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         Long userId = extractUserIdFromRequest(request);
-        String extId = userId.toString();
-        return ResponseEntity.ok(Map.of("userId", extId));
+        if (userId == null) {
+            // 토큰/세션 없거나 만료 → 401
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "로그인이 필요합니다."));
+        }
+
+        return travelJournalService.getMe(userId) // 아래 서비스 메서드
+                .<ResponseEntity<?>>map(me -> ResponseEntity.ok(me)) // 200 OK
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "사용자를 찾을 수 없습니다.")));
     }
+
 
    // 게시글 리스트 (여행일지 가져오기) 페이지,
     @GetMapping("/public")

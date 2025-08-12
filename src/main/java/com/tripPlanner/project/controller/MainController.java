@@ -26,7 +26,7 @@ public class MainController {
         return "main route";
     }
 
-    // 소셜 로그아웃 컨트롤러
+    // 소셜 로그아웃 컨트롤러?? 주석 잘못쓴듯 기능 자체는 그냥 소셜 타입을 주는 느낌임
     @GetMapping("/api/auth/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
 
