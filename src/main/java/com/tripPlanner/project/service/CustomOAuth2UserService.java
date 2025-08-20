@@ -31,7 +31,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         System.out.println("리소스 서버로 부터 받아온 유저정보 확인 : " + oAuth2User);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        System.out.println("OAuth2 registrationId: " + registrationId); // ✅ 이거 꼭 찍어보세요 20250424
+        System.out.println("OAuth2 registrationId: " + registrationId); // 이거 꼭 찍어보세요 20250424
         OAuth2Response oAuth2Response = null;
 
         if (registrationId.equals("naver")) {

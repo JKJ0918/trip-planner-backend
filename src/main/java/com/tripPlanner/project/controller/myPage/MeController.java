@@ -1,18 +1,19 @@
 package com.tripPlanner.project.controller.myPage;
 
 import com.tripPlanner.project.dto.myPage.MeDTO;
+import com.tripPlanner.project.dto.myPage.MyJournalsDTO;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
 import com.tripPlanner.project.service.myPage.MeService;
+import com.tripPlanner.project.service.myPage.MyJournalsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MeController {
     private final MeService meService;
+    private final MyJournalsService myJournalsService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
@@ -42,6 +44,33 @@ public class MeController {
         }
         meService.updateNickname(userId, body.nickname());
         return ResponseEntity.ok(Map.of("message","updated"));
+    }
+
+    // 내 여행 목록 가져오기
+    @GetMapping("/me/journals")
+    public ResponseEntity<?> getMyJournals (
+            HttpServletRequest request,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size
+    ) {
+        Long userId = extractUserIdFromRequest(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "로그인이 필요합니다."));
+        }
+
+        Page<MyJournalsDTO> result = myJournalsService.getMyJournals(userId, page, size);
+
+        // 래핑 형식으로 응답
+        Map<String, Object> body = Map.of(
+                "items", result.getContent(),
+                "total", result.getTotalElements(),
+                "page", page,
+                "size", size
+        );
+        return ResponseEntity.ok(body);
+
+
     }
 
 

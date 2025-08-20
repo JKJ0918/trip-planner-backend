@@ -21,5 +21,8 @@ public interface TravelJournalRepository extends JpaRepository<TravelJournalEnti
             "LOWER(j.locationSummary) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<TravelJournalEntity> searchPublicByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    // 마이페이지 내가쓴 게시글 불러오기
+    Page<TravelJournalEntity> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
+
 
 }
