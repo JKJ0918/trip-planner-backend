@@ -64,10 +64,26 @@ public class TravelJournalController {
 
     // 특정 게시물 가져오기 (상세 페이지, 게시글 수정)
     @GetMapping("/public/{id}")
+    public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long travelJournalId, HttpServletRequest request){
+
+        Long userId = null;
+        try {
+            userId = extractUserIdFromRequest(request);
+        }catch (Exception ignore){
+            /* 비로그인/무효 토큰은 그냥 null 처리 */
+        }
+        return travelJournalService.getPostDetailById(travelJournalId, userId);
+        // travelJournalId 는 게시글의 id를 뜻함. 좋아요 구현
+    }
+
+    /*
+    // 코드보관 - 특정 게시물 가져오기 (상세 페이지, 게시글 수정)
+    @GetMapping("/public/{id}")
     public TravelPostDetailDTO getPostDetails(@PathVariable("id") Long id){
 
         return travelJournalService.getPostDetailById(id);
     }
+    */
 
     // 게시글 수정
     @PutMapping("/public/edit/{id}")

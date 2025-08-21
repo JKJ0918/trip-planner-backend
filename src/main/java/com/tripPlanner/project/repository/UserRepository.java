@@ -2,6 +2,8 @@ package com.tripPlanner.project.repository;
 
 import com.tripPlanner.project.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -16,11 +18,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     UserEntity findByNameAndSocialType(String username, String socialType); // 소셜 로그인 추가 정보 기입, 게시글 작성 유저 정부
     UserEntity findByUsernameAndSocialType(String username, String socialType); // 일반 로그인 유저 구분
-
     UserEntity findByNickname(String nickname);
 
     boolean existsByUsername(String username);
     boolean existsByNickname(String nickname);
+
+    @Query("select u.nickname from UserEntity u where u.id = :id")
+    Optional<String> findNicknameById(@Param("id") Long id);
 
 
 }

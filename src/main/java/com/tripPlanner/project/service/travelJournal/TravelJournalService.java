@@ -6,6 +6,8 @@ import com.tripPlanner.project.entity.travelJournal.PhotoEntity;
 import com.tripPlanner.project.entity.travelJournal.PinEntity;
 import com.tripPlanner.project.entity.travelJournal.TravelJournalEntity;
 import com.tripPlanner.project.entity.UserEntity;
+import com.tripPlanner.project.repository.travelJournal.JournalLikeCount;
+import com.tripPlanner.project.repository.travelJournal.JournalLikeRepository;
 import com.tripPlanner.project.repository.travelJournal.TravelJournalRepository;
 import com.tripPlanner.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -28,7 +33,9 @@ public class TravelJournalService {
 
     private final UserRepository userRepository;
     private final TravelJournalRepository travelJournalRepository;
-    
+    private final JournalLikeRepository journalLikeRepository;
+
+
     // 게시글 저장
     public Long saveTravelJournal(TravelJournalRequestDTO requestDTO) throws IllegalAccessException {
 
@@ -117,32 +124,50 @@ public class TravelJournalService {
 
     }
 
-    // 게시글 가져오기 페이지
+    // 게시글 목록
     public Page<TravelPostSummaryDTO> getPublicJournals(int page, int size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<TravelJournalEntity> journals;
+        Page<TravelJournalEntity> journals =
+                (keyword != null && !keyword.isBlank())
+                        ? travelJournalRepository.searchPublicByKeyword(keyword, pageable)
+                        : travelJournalRepository.findByIsPublicTrue(pageable);
 
-        if (keyword != null && !keyword.isBlank()) {
-            journals = travelJournalRepository.searchPublicByKeyword(keyword, pageable);
-        } else {
-            journals = travelJournalRepository.findByIsPublicTrue(pageable);
-        }
+        // 1) 현재 페이지의 게시글 ID 수집
+        List<Long> ids = journals.getContent().stream()
+                .map(TravelJournalEntity::getId)
+                .toList();
 
-        return journals.map(journal -> new TravelPostSummaryDTO(
-                        journal.getId(),
-                        journal.getTitle(),
-                        journal.getLocationSummary(),
-                        extractThumbnail(journal),
-                        journal.getUser().getNickname(),
-                        journal.getCreatedAt()
+        // 2) 좋아요 수 일괄 조회 → Map으로 변환
+        Map<Long, Long> likeCountMap = ids.isEmpty()
+                ? Collections.emptyMap()
+                : journalLikeRepository.countByJournalIds(ids).stream()
+                .collect(Collectors.toMap(
+                        JournalLikeCount::getJournalId,
+                        JournalLikeCount::getCnt
                 ));
+
+        // 3) DTO 변환 (likeCount 합쳐 넣기)
+        return journals.map(journal -> new TravelPostSummaryDTO(
+                journal.getId(),
+                journal.getTitle(),
+                journal.getLocationSummary(),
+                extractThumbnail(journal),
+                journal.getUser().getNickname(),
+                journal.getCreatedAt(),
+                likeCountMap.getOrDefault(journal.getId(), 0L)  // 👈 추가
+        ));
     }
 
+
     // 상세페이지_특정게시물 가져오기
-    public TravelPostDetailDTO getPostDetailById(Long id) {
-        TravelJournalEntity journal = travelJournalRepository.findById(id)
+    public TravelPostDetailDTO getPostDetailById(Long travelJournalId, Long userId) {
+        TravelJournalEntity journal = travelJournalRepository.findById(travelJournalId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        long likeCount = journalLikeRepository.countByTravelJournalLikeEntity_Id(travelJournalId);
+        boolean likedByMe = (userId != null) &&
+                journalLikeRepository.existsByTravelJournalLikeEntity_IdAndUserId(travelJournalId, userId);
 
         List<PinDTO> pins = journal.getPinEntities().stream().map(pin -> new PinDTO(
                 pin.getLat(),
@@ -179,35 +204,38 @@ public class TravelJournalService {
             thumbnailUrl = journals.get(0).getPhotos().get(0).getUrl(); // 첫 사진
         }
 
-        return new TravelPostDetailDTO(
-                journal.getId(),
-                journal.getTitle(),
-                journal.getLocationSummary(),
-                journal.getDescription(),
-                journal.getUseFlight(),
-                journal.getFlightDepartureAirline(),
-                journal.getFlightDepartureName(),
-                journal.getFlightDepartureTime(),
-                journal.getFlightDepartureAirport(),
-                journal.getFlightArrivalAirport(),
-                journal.getFlightReturnAirline(),
-                journal.getFlightReturnName(),
-                journal.getFlightReturnTime(),
-                journal.getFlightReturnDepartureAirport(),
-                journal.getFlightReturnArrivalAirport(),
-                journal.getTravelTrans(),
-                journal.getTotalBudget(),
-                journal.getTravelTheme(),
-                journal.getReview(),
-                journal.getIsAfterTravel(),
-                new DateRangeDTO(journal.getStartDate().toString(), journal.getEndDate().toString()),
-                thumbnailUrl, // 경로 확인 필수
-                journal.getUser().getNickname(), // 유저 테이블과 연관됨
-                pins,
-                itinerary
-                // 아래 추가 필드들
-
-        );
+        return TravelPostDetailDTO.builder()
+                .id(journal.getId())
+                .title(journal.getTitle())
+                .locationSummary(journal.getLocationSummary())
+                .description(journal.getDescription())
+                .useFlight(journal.getUseFlight())
+                .flightDepartureAirline(journal.getFlightDepartureAirline())
+                .flightDepartureName(journal.getFlightDepartureName())
+                .flightDepartureTime(journal.getFlightDepartureTime())
+                .flightDepartureAirport(journal.getFlightDepartureAirport())
+                .flightArrivalAirport(journal.getFlightArrivalAirport())
+                .flightReturnAirline(journal.getFlightReturnAirline())
+                .flightReturnName(journal.getFlightReturnName())
+                .flightReturnTime(journal.getFlightReturnTime())
+                .flightReturnDepartureAirport(journal.getFlightReturnDepartureAirport())
+                .flightReturnArrivalAirport(journal.getFlightReturnArrivalAirport())
+                .travelTrans(journal.getTravelTrans())
+                .totalBudget(journal.getTotalBudget())
+                .travelTheme(journal.getTravelTheme())
+                .review(journal.getReview())
+                .isAfterTravel(journal.getIsAfterTravel())
+                .dateRange(new DateRangeDTO(
+                        journal.getStartDate().toString(),
+                        journal.getEndDate().toString()
+                ))
+                .thumbnailUrl(thumbnailUrl)   // 썸네일 동적 추출
+                .authorNickname(journal.getUser().getNickname()) // 작성자 닉네임
+                .pins(pins)                   // 지도 핀 목록
+                .itinerary(itinerary)         // 일정 목록
+                .likeCount(likeCount)         // 👍 좋아요 수
+                .likedByMe(likedByMe)         // 👍 내가 좋아요 눌렀는지
+                .build();
     }
 
 
@@ -216,7 +244,7 @@ public class TravelJournalService {
         if (journal.getJournalEntities() != null && !journal.getJournalEntities().isEmpty()) {
             for (JournalEntity entry : journal.getJournalEntities()) {
                 if (entry.getPhotos() != null && !entry.getPhotos().isEmpty()) {
-                    return entry.getPhotos().get(0).getUrl(); // ✅ 가장 먼저 발견된 사진
+                    return entry.getPhotos().get(0).getUrl(); // 가장 먼저 발견된 사진
                 }
             }
         }

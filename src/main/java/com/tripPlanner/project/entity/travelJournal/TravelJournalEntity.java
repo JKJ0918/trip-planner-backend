@@ -64,6 +64,9 @@ public class TravelJournalEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity user;
 
+    @OneToMany(mappedBy = "travelJournalLikeEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<JournalLikeEntity> likes = new ArrayList<>();
+
 
 
 

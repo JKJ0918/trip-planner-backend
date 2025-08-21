@@ -1,9 +1,6 @@
 package com.tripPlanner.project.dto.travelJournal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,6 +8,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TravelPostDetailDTO {
     // 여행 상세정보
     private Long id;
@@ -38,10 +36,12 @@ public class TravelPostDetailDTO {
     private DateRangeDTO dateRange;
     private String thumbnailUrl;
     private String authorNickname;
- 
-    
+
     private List<PinDTO> pins; // 핀정보
     private List<JournalReadDTO> itinerary; // 일일 일정
+
+    private long likeCount;   // 좋아요 수
+    private boolean likedByMe; // 내가 좋아요 눌렀는지
 
 
 }
