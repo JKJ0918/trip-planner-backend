@@ -155,7 +155,8 @@ public class TravelJournalService {
                 extractThumbnail(journal),
                 journal.getUser().getNickname(),
                 journal.getCreatedAt(),
-                likeCountMap.getOrDefault(journal.getId(), 0L)  // 👈 추가
+                journal.getViews(),
+                likeCountMap.getOrDefault(journal.getId(), 0L)  // 추가
         ));
     }
 
@@ -233,8 +234,9 @@ public class TravelJournalService {
                 .authorNickname(journal.getUser().getNickname()) // 작성자 닉네임
                 .pins(pins)                   // 지도 핀 목록
                 .itinerary(itinerary)         // 일정 목록
-                .likeCount(likeCount)         // 👍 좋아요 수
-                .likedByMe(likedByMe)         // 👍 내가 좋아요 눌렀는지
+                .likeCount(likeCount)         // 좋아요 수
+                .likedByMe(likedByMe)         // 내가 좋아요 눌렀는지
+                .views(journal.getViews()) // 조회수
                 .build();
     }
 

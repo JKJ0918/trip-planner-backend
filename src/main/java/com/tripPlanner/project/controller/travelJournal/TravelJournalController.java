@@ -8,6 +8,7 @@ import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
 import com.tripPlanner.project.service.travelJournal.TravelJournalService;
+import com.tripPlanner.project.service.travelJournal.ViewService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class TravelJournalController {
     private final TravelJournalService travelJournalService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final ViewService viewService;
 
     // 게시글 추가
     @PostMapping
@@ -51,7 +53,7 @@ public class TravelJournalController {
     }
 
 
-   // 게시글 리스트 (여행일지 가져오기) 페이지,
+   // 게시글 리스트 (여행일지 가져오기) 페이지
     @GetMapping("/public")
     public ResponseEntity<Page<TravelPostSummaryDTO>> getPublicJournals(
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -111,7 +113,18 @@ public class TravelJournalController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제 실패" + e.getMessage());
         }
 
+    }
 
+    // 게시글 조회수
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> addView(@PathVariable("id") long postId,
+                                        HttpServletRequest request) {
+        Long userId = extractUserIdFromRequest(request); // ← 당신의 기존 메서드 사용
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        viewService.recordView(postId, userId);
+        return ResponseEntity.noContent().build();
     }
 
 

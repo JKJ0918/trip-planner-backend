@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,6 +24,11 @@ public interface TravelJournalRepository extends JpaRepository<TravelJournalEnti
 
     // 마이페이지 내가쓴 게시글 불러오기
     Page<TravelJournalEntity> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
+
+    // 조회수 증가
+    @Modifying(clearAutomatically = false, flushAutomatically = false)
+    @Query("update TravelJournalEntity j set j.views = j.views + 1 where j.id = :postId")
+    int incrementViews(@Param("postId") long postId);
 
 
 }

@@ -43,5 +43,7 @@ public class TravelPostDetailDTO {
     private long likeCount;   // 좋아요 수
     private boolean likedByMe; // 내가 좋아요 눌렀는지
 
+    private Long views; // 게시글 조회수
+
 
 }

@@ -50,6 +50,9 @@ public class TravelJournalEntity {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @Column(nullable = false) // 조회수
+    private Long views = 0L;
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now(); // 작성시간 체크용
 
