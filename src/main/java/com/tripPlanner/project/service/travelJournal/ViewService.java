@@ -1,5 +1,6 @@
 package com.tripPlanner.project.service.travelJournal;
 
+import com.tripPlanner.project.component.ViewProperties;
 import com.tripPlanner.project.repository.travelJournal.TravelJournalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

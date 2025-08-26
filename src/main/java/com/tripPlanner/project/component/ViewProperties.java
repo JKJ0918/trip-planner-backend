@@ -1,4 +1,4 @@
-package com.tripPlanner.project.service.travelJournal;
+package com.tripPlanner.project.component;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
