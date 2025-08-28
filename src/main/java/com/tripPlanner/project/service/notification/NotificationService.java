@@ -25,7 +25,7 @@ public class NotificationService {
             Long postId, Long commentId,
             String message, String link) {
 
-        if (Objects.equals(recipientId, actorId)) return null; // 자기 자신이면 알림 안 보냄(선택)
+        if (Objects.equals(recipientId, actorId)) return null; // 자기 자신이면 알림 안 보냄
 
         NotificationEntity n = new NotificationEntity();
         n.setRecipientId(recipientId);

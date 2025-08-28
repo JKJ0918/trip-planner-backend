@@ -15,6 +15,7 @@ public record NotificationDTO(
         Long actorId,
         LocalDateTime createdAt
 ) {
+    // Factory method : 필요한 값만 entity에서 뽑아쓰기 위해(보안/성능상)
     public static NotificationDTO from(NotificationEntity n) {
         return new NotificationDTO(
                 n.getId(),

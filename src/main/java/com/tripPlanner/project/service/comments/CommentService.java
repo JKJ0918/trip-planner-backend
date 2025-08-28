@@ -5,11 +5,13 @@ import com.tripPlanner.project.dto.comments.CommentResponseDTO;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.entity.comments.CommentEntity;
 import com.tripPlanner.project.entity.comments.CommentLikeEntity;
+import com.tripPlanner.project.entity.notification.NotificationEntity;
 import com.tripPlanner.project.entity.travelJournal.TravelJournalEntity;
 import com.tripPlanner.project.repository.UserRepository;
 import com.tripPlanner.project.repository.comments.CommentLikeRepository;
 import com.tripPlanner.project.repository.comments.CommentRepository;
 import com.tripPlanner.project.repository.travelJournal.TravelJournalRepository;
+import com.tripPlanner.project.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class CommentService {
     private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
     private final TravelJournalRepository travelJournalRepository;
+    private final NotificationService notificationService;
 
     // 댓글 작성
     public void addComment(Long journalId, Long userId, CommentRequestDTO dto){
@@ -51,6 +54,33 @@ public class CommentService {
                 .build();
 
         commentRepository.save(commentEntity);
+
+        // 댓글 작성 알람
+        // 1) 방금 저장한 댓글 엔티티: saved
+        CommentEntity saved = commentRepository.save(commentEntity);
+
+        // 2) 알람 받을 사람(게시글 작성자) 찾기 (recipientId)
+        Long recipientId = journal.getUser().getId();
+
+        // 3) 댓글 작성자의 닉네임
+        String actorNickname = user.getNickname();
+
+        // 4) 자기 자신에게는 알림 보내지 않기
+        if (!recipientId.equals(userId)) {
+            notificationService.createAndSend(
+                    recipientId,                     // 받는 사람
+                    userId,                          // 행동 주체(댓글 단 사람)
+                    NotificationEntity.Type.COMMENT, // 알림 타입
+                    journalId,                       // postId에 해당(여행일지 id)
+                    saved.getId(),                   // commentId
+                    actorNickname + "님이 댓글을 남겼습니다.",
+                    // 프론트 라우팅에 맞춰 링크 수정하세요.
+                    // (당신 프로젝트가 /posts/[id]면 "/posts/" + journalId)
+                    // (만약 /journals/[id] 라우팅이면 "/journals/" + journalId)
+                    "/posts/" + journalId + "#comment-" + saved.getId()
+            );
+        }
+
 
     }
 
@@ -170,6 +200,28 @@ public class CommentService {
         }
 
 
+    }
+
+    // 댓글 저장 성공 후
+    public void afterCreateComment(Long postId, Long commentId, Long postAuthorId, Long actorId, String actorNickname) {
+        notificationService.createAndSend(
+                postAuthorId, actorId,
+                NotificationEntity.Type.COMMENT,
+                postId, commentId,
+                actorNickname + "님이 댓글을 남겼습니다.",
+                "/posts/" + postId + "#comment-" + commentId
+        );
+    }
+
+    // 좋아요 저장 성공 후
+    public void afterLikePost(Long postId, Long postAuthorId, Long actorId, String actorNickname) {
+        notificationService.createAndSend(
+                postAuthorId, actorId,
+                NotificationEntity.Type.LIKE,
+                postId, null,
+                actorNickname + "님이 좋아요를 눌렀습니다.",
+                "/posts/" + postId
+        );
     }
 
     

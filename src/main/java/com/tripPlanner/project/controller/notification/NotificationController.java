@@ -24,8 +24,8 @@ public class NotificationController {
     @GetMapping
     public Page<NotificationDTO> list(
             HttpServletRequest req,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         Long userId = getUserId(req);
         return repo.findByRecipientIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size))
                 .map(NotificationDTO::from);
@@ -39,7 +39,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{id}/read")
-    public void markRead(HttpServletRequest req, @PathVariable Long id) {
+    public void markRead(HttpServletRequest req, @PathVariable("id") Long id) {
         Long userId = getUserId(req);
         int updated = repo.markRead(id, userId);
         if (updated == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 알림이 없거나 권한이 없습니다.");

@@ -13,8 +13,10 @@ import javax.management.Notification;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
 
+    // 사용자의 알림을 최신순(CreatedAtDesc 내림차순) 으로 페이징 조회
     Page<NotificationEntity> findByRecipientIdOrderByCreatedAtDesc(Long recipientId, Pageable pageable);
 
+    // 해당 사용자의 안 읽은(isRead = false) 알림 개수를 반환
     long countByRecipientIdAndIsReadFalse(Long recipientId);
 
     @Modifying

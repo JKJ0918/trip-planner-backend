@@ -131,7 +131,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/journals/public/edit/{id}" ).permitAll() // 게시글 수정
                         .requestMatchers("/api/images/upload","/api/images/edit/upload", "/api/images/edit/delete" ).permitAll() // 게시글 이미지 관련
                         .requestMatchers("/api/comments/**").authenticated() // 댓글 관련
-
+                        .requestMatchers("/api/notifications/**").authenticated() // 댓글 알람 관련
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
