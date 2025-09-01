@@ -85,7 +85,7 @@ public class ReissueController {
         // Add socialType distinguish 20_may 2025
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", "tempType", username, role, "tempSocialType",600000L);
+        String newAccess = jwtUtil.createJwt("access", "tempType", username, role, "tempSocialType",1800000L);
         String newRefresh = jwtUtil.createJwt("refresh", "tempType", username, role, "tempSocialType",86400000L); // refresh token 도 새로 발급
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장

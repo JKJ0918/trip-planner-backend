@@ -66,5 +66,9 @@ public class JWTUtil {
                 .compact();
     }
 
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
 
 }

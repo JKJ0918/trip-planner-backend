@@ -54,7 +54,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         //토큰 생성
-        String accessToken = jwtUtil.createJwt("access", "social", username, role, socialType, 600000L);
+        String accessToken = jwtUtil.createJwt("access", "social", username, role, socialType, 1800000L);
         String refresh = jwtUtil.createJwt("refresh", "social", username, role, socialType, 86400000L);
         // 토큰 만들때 username은 db의 name에 해당하는 값.
         //Refresh 토큰 저장
@@ -91,7 +91,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60);
+        cookie.setMaxAge(60*60*60); // 60*60*60 = 216,000초 -> 60시간
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true); // 자바스크립트가 쿠키를 가져가지 못함

@@ -87,7 +87,8 @@ public class JWTFilter extends OncePerRequestFilter {
             // 필요한 응용 상태코드를 발급하여 프론트에서 리프레시 토큰을 발급하도록 하던가 해야함.
         }
         // 여기까지 토큰 검증완료
-        //
+
+
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
