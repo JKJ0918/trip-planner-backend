@@ -38,6 +38,11 @@ public class MainController {
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request){
 
         String token = extractAccessToken(request);
+
+        if(token == null){
+            return ResponseEntity.status(401).body(Map.of("message","로그인이 필요합니다"));
+        }
+
         String socialType = jwtUtil.getSocialType(token);
 
         return ResponseEntity.ok(Map.of(
@@ -46,7 +51,7 @@ public class MainController {
 
     }
 
-    // 토큰 만료 시간 표시
+    // 토큰 만료 시간 표시(계산)
     @GetMapping("/api/auth/session")
     public ResponseEntity<?> getSession(HttpServletRequest request){
         String token = extractAccessToken(request);
@@ -60,9 +65,7 @@ public class MainController {
         // 토큰 O
         try {
             long now = jwtService.nowEpochSec();
-            System.out.println("현재 now 값은??"+now);
             long exp = jwtService.getExpEpochSec(token);
-            System.out.println("현재 exp 만료 값은??"+exp);
             long remaining = Math.max(0, exp-now);
 
             return ResponseEntity.ok(Map.of(

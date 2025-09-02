@@ -43,9 +43,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 소셜 타입
         CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
         String socialType = user.getSocialType();
-        System.out.println("CustomSuccessHandler CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal() 출력 확인 : " + user);
-        System.out.println("CustomSuccessHandler socialType 출력 확인 : " + socialType);
-
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();

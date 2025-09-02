@@ -45,7 +45,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         return null;
     }
-
+    
+    // 토큰 검증
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -53,7 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
         System.out.println("doFilterInternal access Token 검증 : " + accessToken);
         // accessToken 이 없을 경우 다음 필터로 넘김
         if (accessToken == null) {
-            System.out.println("accessToken null");
+            System.out.println("JWTFilter.doFilterInternal - accessToken null");
             filterChain.doFilter(request, response);
             return;
         }
@@ -73,7 +74,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 토큰이 access인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(accessToken);
-        System.out.println("doFilterInternal Token category 검증 : " + category);
+        System.out.println("JWTFilter.doFilterInternal - Token category 검증확인 - : " + category);
         if (!category.equals("access")) { // access가 아닐 경우
 
             //response body

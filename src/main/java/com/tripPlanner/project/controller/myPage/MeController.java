@@ -97,6 +97,11 @@ public class MeController {
     private Long extractUserIdFromRequest(HttpServletRequest request) {
         String token = extractAccessToken(request);
 
+        // 토큰 없을 시 null 반환
+        if (!org.springframework.util.StringUtils.hasText(token)) {
+            return null;
+        }
+
         String name = jwtUtil.getUsername(token);
         String socialType = jwtUtil.getSocialType(token);
 

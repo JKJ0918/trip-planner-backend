@@ -3,6 +3,7 @@ package com.tripPlanner.project.controller;
 import com.tripPlanner.project.entity.RefreshEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.RefreshRepository;
+import com.tripPlanner.project.service.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.util.Date;
 @ResponseBody // 위 두개 합친게 RESTCONTROLLER임
 public class ReissueController {
 
+    // refresh 토큰을 이용하여, accessToken을 재발급 하는 Contorller
     private final JWTUtil jwtUtil;
 
     private final RefreshRepository refreshRepository;
@@ -31,7 +33,7 @@ public class ReissueController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response){ // *참고 request 응답을 받고, response 서버의 응답을 전달해 줄 수 있는 것
         // refresh 토큰은 cridential 켜서 보내면 될것 같다
         // 아래 내용 Service 로 나중에 정리 할 것.
 
@@ -46,6 +48,7 @@ public class ReissueController {
             }
         }
 
+        // 리프레시 토큰이 null 일 경우 처리
         if (refresh == null) {
 
             //response status code
@@ -83,10 +86,12 @@ public class ReissueController {
 
         // distinguish social & local -- make sure token type down below_19 may 2025
         // Add socialType distinguish 20_may 2025
+        String type = jwtUtil.getType(refresh);
+        String socialType = jwtUtil.getSocialType(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", "tempType", username, role, "tempSocialType",1800000L);
-        String newRefresh = jwtUtil.createJwt("refresh", "tempType", username, role, "tempSocialType",86400000L); // refresh token 도 새로 발급
+        String newAccess = jwtUtil.createJwt("access", type, username, role, socialType,1800000L);
+        String newRefresh = jwtUtil.createJwt("refresh", type, username, role, socialType,86400000L); // refresh token 도 새로 발급
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
@@ -95,7 +100,6 @@ public class ReissueController {
         //response
         response.addCookie(createCookie("Authorization", newAccess)); // access token header 추가
         response.addCookie(createCookie("refresh", newRefresh));
-
 
         return new ResponseEntity<>(HttpStatus.OK);
 

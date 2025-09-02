@@ -155,8 +155,8 @@ public class TravelJournalService {
                 extractThumbnail(journal),
                 journal.getUser().getNickname(),
                 journal.getCreatedAt(),
-                journal.getViews(),
-                likeCountMap.getOrDefault(journal.getId(), 0L)  // 추가
+                likeCountMap.getOrDefault(journal.getId(), 0L),  // 추가
+                journal.getViews()
         ));
     }
 
