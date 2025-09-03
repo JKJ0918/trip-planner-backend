@@ -30,6 +30,8 @@ public class UserEntity {
     private String role;
 
     private String socialType; // 소셜 로그인 경로 (네이버, 카카오, 구글)
+    
+    private String avatarUrl; // 프로필 사진 경로
 
 
 }

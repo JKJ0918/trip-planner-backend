@@ -25,7 +25,7 @@ public class MeController {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
-    // 로그인 여부 확인?
+    // useMe
     @GetMapping("/auth/me")
     public ResponseEntity<?> getMe(HttpServletRequest request){
         Long userId = extractUserIdFromRequest(request);
@@ -35,15 +35,16 @@ public class MeController {
         return ResponseEntity.ok(meService.getMe(userId));
     }
 
-    // 프로필 닉네임 수정
+    // 프로필 닉네임/프로필 사진 수정
     @PutMapping("/users/me")
     public ResponseEntity<?> updateMe(HttpServletRequest request, @RequestBody MeDTO.UpdateMeRequest body) {
         Long userId = extractUserIdFromRequest(request);
         if (userId == null) {
-            return ResponseEntity.status(401).body(Map.of("message","로그인이 필요합니다"));
+            return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
         }
-        meService.updateNickname(userId, body.nickname());
-        return ResponseEntity.ok(Map.of("message","updated"));
+        MeDTO.MeResponse updated = meService.updateMe(userId, body);
+
+        return ResponseEntity.ok(updated);
     }
 
     // 내 여행 목록 가져오기
@@ -72,7 +73,6 @@ public class MeController {
 
 
     }
-
 
 
     // 토큰 추출

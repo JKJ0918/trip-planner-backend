@@ -51,7 +51,6 @@ public class ImageUploadController {
         }
     }
 
-
     // 게시글 수정 이미지 삭제 요청
     @PostMapping("/edit/delete")
     public ResponseEntity<String> deleteImages(@RequestBody Map<String, List<String>> payload) {

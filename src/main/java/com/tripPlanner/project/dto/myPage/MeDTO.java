@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 public class MeDTO {
     // DTO
-    public record MeResponse(Long id, String nickname, String email) {}
+    public record MeResponse(Long id, String nickname, String email, String avatarUrl) {}
 
-    public record UpdateMeRequest(String nickname) {}
+    public record UpdateMeRequest(String nickname, String avatarUrl) {}
 
 }
