@@ -1,16 +1,20 @@
 package com.tripPlanner.project.controller.myPage;
 
 import com.tripPlanner.project.dto.myPage.MeDTO;
+import com.tripPlanner.project.dto.myPage.MeLikePostDTO;
 import com.tripPlanner.project.dto.myPage.MyJournalsDTO;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
+import com.tripPlanner.project.repository.travelJournal.JournalLikeRepository;
 import com.tripPlanner.project.service.myPage.MeService;
 import com.tripPlanner.project.service.myPage.MyJournalsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,7 @@ public class MeController {
     private final MyJournalsService myJournalsService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final JournalLikeRepository journalLikeRepository;
 
     // useMe
     @GetMapping("/auth/me")
@@ -47,7 +52,7 @@ public class MeController {
         return ResponseEntity.ok(updated);
     }
 
-    // 내 여행 목록 (내가쓴 게시물)가져오기
+    // 마이페이지 - 내 여행 목록 (내가쓴 게시물)가져오기
     @GetMapping("/me/journals")
     public ResponseEntity<?> getMyJournals (
             HttpServletRequest request,
@@ -71,6 +76,25 @@ public class MeController {
         );
         return ResponseEntity.ok(body);
 
+    }
+
+    // 마이페이지 - 좋아요한 글목록 불러오기
+    @GetMapping("/me/likeJournals")
+    public ResponseEntity<?> getMyLikedPosts(
+            HttpServletRequest request,
+            @RequestParam(name = "afterTravel", required = false) Boolean afterTravel,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size
+    ) {
+        Long userId = extractUserIdFromRequest(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "로그인이 필요합니다."));
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MeLikePostDTO> result = journalLikeRepository.findMyLikedPosts(userId, afterTravel, pageable);
+        return ResponseEntity.ok(result);
 
     }
 
