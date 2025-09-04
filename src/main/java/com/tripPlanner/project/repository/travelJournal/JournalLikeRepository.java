@@ -20,12 +20,12 @@ public interface JournalLikeRepository extends JpaRepository<JournalLikeEntity, 
     // 좋아요 취소
     int deleteByTravelJournalLikeEntity_IdAndUserId(Long travelJournalId, Long userId);
 
+    // 좋아요 수 계산
     @Query("SELECT jl.travelJournalLikeEntity.id AS journalId, COUNT(jl) AS cnt " +
             "FROM JournalLikeEntity jl " +
             "WHERE jl.travelJournalLikeEntity.id IN :journalIds " +
             "GROUP BY jl.travelJournalLikeEntity.id")
 
     List<JournalLikeCount> countByJournalIds(@Param("journalIds") List<Long> journalIds);
-
 
 }

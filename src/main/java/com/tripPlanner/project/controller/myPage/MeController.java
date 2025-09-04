@@ -47,7 +47,7 @@ public class MeController {
         return ResponseEntity.ok(updated);
     }
 
-    // 내 여행 목록 가져오기
+    // 내 여행 목록 (내가쓴 게시물)가져오기
     @GetMapping("/me/journals")
     public ResponseEntity<?> getMyJournals (
             HttpServletRequest request,
