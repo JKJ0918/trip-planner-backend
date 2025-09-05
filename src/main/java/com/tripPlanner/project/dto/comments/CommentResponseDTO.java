@@ -24,4 +24,6 @@ public class CommentResponseDTO {
     
     private int likeCount; // 좋아요 수
     private boolean likedByMe; // 내가 누른 좋아요 인지
+    private String avatarUrl; // 프사 경로 가지고 오기
+
 }

@@ -10,6 +10,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,14 +40,6 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    /* 댓글 불러오기_무한 스크롤 구현중
-    @GetMapping("/{journalId}")
-    public ResponseEntity<List<CommentResponseDTO>> getComments(@PathVariable("journalId") Long journalId,
-                                                                HttpServletRequest request){
-        Long userId = extractUserIdFromRequest(request);
-        return ResponseEntity.ok(commentService.getComments(journalId, userId));
-    }*/
-
     // 댓글 불러오기_무한스크롤 구현
     @GetMapping("/{journalId}")
     public ResponseEntity<Page<CommentResponseDTO>> getTopLevelComments(
@@ -60,15 +55,16 @@ public class CommentController {
     }
 
 
-
     // 대댓글 불러오기
     @GetMapping("/{parentId}/replies")
-    public ResponseEntity<List<CommentResponseDTO>> getReplies(
+    public ResponseEntity<Page<CommentResponseDTO>> getReplies(
             @PathVariable("parentId") Long parentId,
+            @PageableDefault(size = 3, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
-        Long userId = extractUserIdFromRequest(request);
-        return ResponseEntity.ok(commentService.getReplies(parentId, userId));
+        Long userId = extractUserIdFromRequest(request); // null 허용
+        Page<CommentResponseDTO> page = commentService.getRepliesPage(parentId, userId, pageable);
+        return ResponseEntity.ok(page);
     }
 
 

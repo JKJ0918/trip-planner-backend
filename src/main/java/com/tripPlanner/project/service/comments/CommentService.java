@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -87,6 +88,7 @@ public class CommentService {
 
     // 댓글 가져오기 - 무한 스크롤 + 정렬 기능 추가
     public Page<CommentResponseDTO> getTopLevelComments(Long journalId, Long userId, int page, int size, String sort) {
+
         Pageable pageable = PageRequest.of(page, size);
         Page<CommentEntity> commentPage;
 
@@ -104,10 +106,14 @@ public class CommentService {
                 .map(like -> like.getComment().getId())
                 .collect(Collectors.toSet());
 
+        final String DEFAULT_AVATAR = "/uploads/basic_profile.png";
         return commentPage.map(c -> CommentResponseDTO.builder()
                 .id(c.getId())
                 .content(c.getContent())
                 .writerName(c.getUser().getNickname())
+                .avatarUrl(               // ← 이 줄만 추가
+                        Optional.ofNullable(c.getUser().getAvatarUrl()).orElse(DEFAULT_AVATAR)
+                )
                 .createdAt(c.getCreatedAt())
                 .parentId(null)
                 .edited(c.isEdited())
@@ -121,30 +127,51 @@ public class CommentService {
 
 
     // 대댓글 가져오기
-    public List<CommentResponseDTO> getReplies(Long parentId, Long userId) {
-        List<CommentEntity> replies = commentRepository.findByParentIdOrderByCreatedAtAsc(parentId);
+    public Page<CommentResponseDTO> getRepliesPage(Long parentId, Long userId, Pageable pageable){
 
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        // 1) 페이지 단위로 대댓글 조회
+        Page<CommentEntity> page = commentRepository.findByParentId(parentId, pageable);
 
-        List<CommentLikeEntity> liked = commentLikeRepository.findByUserAndCommentIn(user, replies);
-        Set<Long> likedCommentIds = liked.stream()
-                .map(like -> like.getComment().getId())
-                .collect(Collectors.toSet());
+        // 2) 로그인 유저(옵션) - 없으면 LikedByMe 는 false, author 판정은 불가
+        UserEntity loginUser = null;
+        if (userId != null){
+            loginUser = userRepository.findById(userId).orElse(null);
+        }
 
-        return replies.stream().map(c -> CommentResponseDTO.builder()
+        // 3) 좋아요 정보(본인 확인) - 현재 페이지에 한정해서 조회
+        Set<Long> likedCommentIds = Collections.emptySet();
+        if(loginUser != null && !page.getContent().isEmpty()){
+            List<CommentLikeEntity> liked = commentLikeRepository.findByUserAndCommentIn(
+                    loginUser,
+                    page.getContent()
+            );
+            likedCommentIds = liked.stream()
+                    .map(l -> l.getComment().getId())
+                    .collect(Collectors.toSet());
+        }
+
+        // 4) DTO 매핑
+        // loginUser, likedCommentIds 를 final 변수로 고정
+        final UserEntity finalLoginUser = loginUser;
+        final Set<Long> finalLikedCommentIds = likedCommentIds;
+
+        return page.map(c -> CommentResponseDTO.builder()
                 .id(c.getId())
                 .content(c.getContent())
                 .writerName(c.getUser().getNickname())
                 .createdAt(c.getCreatedAt())
-                .parentId(c.getParent().getId())
+                .parentId(c.getParent() != null ? c.getParent().getId() : null)
+                .replyCount(c.getChildren() != null ? c.getChildren().size() : 0)
                 .edited(c.isEdited())
-                .isAuthor(c.getUser().getId().equals(userId))
-                .likeCount(c.getLikes().size())
-                .likedByMe(likedCommentIds.contains(c.getId()))
+                .isAuthor(finalLoginUser != null && c.getUser().getId().equals(finalLoginUser.getId()))
+                .likeCount(c.getLikes() != null ? c.getLikes().size() : 0)
+                .likedByMe(finalLikedCommentIds.contains(c.getId()))
+                .avatarUrl(c.getUser().getAvatarUrl())
                 .build()
-        ).toList();
+        );
+
     }
+
 
 
 
