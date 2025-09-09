@@ -12,10 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -39,10 +38,6 @@ public class JoinController {
 
         // Spring boot에서는 Frontend에서 전달 받은 body: JSON.stringify({ username })을
         // DTO 클래스로 자동 매핑해줌
-        // 중복 검사
-        if (userRepository.existsByUsername(joinDTO.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 아이디입니다.");
-        }
 
         if (userRepository.existsByNickname(joinDTO.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 닉네임입니다.");
@@ -52,6 +47,20 @@ public class JoinController {
         
         return ResponseEntity.ok("회원가입 완료");
 
+    }
+
+    // 아이디(username 중복 검사)
+    @GetMapping("api/user/username-available")
+    public Map<String, Object> usernameAvailable(@RequestParam(name = "username", required = false) String username){
+        boolean available = !userRepository.existsByUsername(username);
+        return Map.of("available", available);
+    }
+
+    // 닉네임(nickname 중복 검사)
+    @GetMapping("api/user/nickname-available")
+    public Map<String, Object> nicknameAvailable(@RequestParam(name = "nickname", required = false) String nickname){
+        boolean available = !userRepository.existsByNickname(nickname);
+        return Map.of("available", available);
     }
 
 

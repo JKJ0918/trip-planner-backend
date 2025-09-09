@@ -121,7 +121,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**").permitAll() //  메인 페이지
+                        .requestMatchers("/**").permitAll() //  전체 페이지 오픈
                         .requestMatchers("/api/auth/me","/api/auth/logout").permitAll() // 로그인 로그아웃
                         .requestMatchers("/join","/login","/main").permitAll() // 회원가입
                         .requestMatchers("/reissue").permitAll() // refresh Token
