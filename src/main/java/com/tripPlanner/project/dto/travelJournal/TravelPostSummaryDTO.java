@@ -21,6 +21,7 @@ public class TravelPostSummaryDTO {
     private String authorNickname; // 작성자 닉네임
     private LocalDateTime createdAt; //
 
+
     private long likeCount; // 좋아요 숫자
     private long views; // 게시글 조회수
 }

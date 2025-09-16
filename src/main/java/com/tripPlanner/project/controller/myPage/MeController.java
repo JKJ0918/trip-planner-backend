@@ -56,7 +56,7 @@ public class MeController {
     @GetMapping("/me/journals")
     public ResponseEntity<?> getMyJournals (
             HttpServletRequest request,
-            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "12") int size
     ) {
         Long userId = extractUserIdFromRequest(request);
