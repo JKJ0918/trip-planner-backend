@@ -13,7 +13,7 @@ public class ChattingConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // stomp 접속 주소 url = ws://localhost:8080/ws, 프로토콜이 http가 아님
-        registry.addEndpoint("/ws") // 연결된 엔드포인트
+        registry.addEndpoint("/ws-stomp") // 연결된 엔드포인트
                 .setAllowedOrigins("*");
     }
 
