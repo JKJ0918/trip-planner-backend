@@ -25,9 +25,9 @@ public class ChatService {
     }
 
     @Transactional
-    public Mono<ChatMessageEntity> saveChatMessage(RequestMessageDto chat) {
+    public Mono<ChatMessageEntity> saveChatMessage(RequestMessageDto chat, Long writerId) {
         return chatMessageRepository.save(
-                new ChatMessageEntity(chat.getRoomId(), chat.getContent(), chat.getWriterId(),
+                new ChatMessageEntity(chat.getRoomId(), chat.getContent(), writerId,
                         new Date()));
     }
 

@@ -1,5 +1,6 @@
 package com.tripPlanner.project.jwt;
 
+import com.tripPlanner.project.dto.ws.TokenUserInfo;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
+
 
 @Component
 public class JWTUtil {
@@ -21,6 +24,7 @@ public class JWTUtil {
     }
 
     // 검증을 진행 method getUsername, getRole, isExpired
+
     public String getUsername(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
@@ -70,5 +74,31 @@ public class JWTUtil {
         return secretKey;
     }
 
+    // 패키지/이름
+    public TokenUserInfo getUserInfoOrThrow(String token) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("token is blank");
+        }
+        // 1) 만료 체크 (필요 시 서명/카테고리도 검증)
+        if (Boolean.TRUE.equals(isExpired(token))) {
+            throw new IllegalArgumentException("token is expired");
+        }
+        // (선택) 카테고리/타입도 검사하고 싶다면:
+        // String category = getCategory(token);
+        // String type = getType(token);
+        // if (!"access".equals(type)) throw new IllegalArgumentException("invalid token type");
+
+        // 2) 필요한 클레임 묶어서 반환
+        String username = getUsername(token);
+        String social   = getSocialType(token);
+        if (username == null || social == null) {
+            throw new IllegalArgumentException("username/socialType not found in token");
+        }
+        return new TokenUserInfo(username, social);
+    }
+
+
 
 }
+
+

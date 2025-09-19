@@ -111,6 +111,7 @@ public class CommentService {
                 .id(c.getId())
                 .content(c.getContent())
                 .writerName(c.getUser().getNickname())
+                .writerId(c.getUser().getId())
                 .avatarUrl(               // ← 이 줄만 추가
                         Optional.ofNullable(c.getUser().getAvatarUrl()).orElse(DEFAULT_AVATAR)
                 )
@@ -159,6 +160,7 @@ public class CommentService {
                 .id(c.getId())
                 .content(c.getContent())
                 .writerName(c.getUser().getNickname())
+                .writerId(c.getUser().getId())
                 .createdAt(c.getCreatedAt())
                 .parentId(c.getParent() != null ? c.getParent().getId() : null)
                 .replyCount(c.getChildren() != null ? c.getChildren().size() : 0)

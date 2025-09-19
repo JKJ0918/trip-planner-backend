@@ -13,12 +13,18 @@ import java.util.Date;
 @AllArgsConstructor
 public class ResponseChatRoomDto {
 
-    private Long id;
+    private Long roomId;
     private String title;
     private Date createDate;
+    public ResponseChatRoomDto(Long roomId) {
+        this.roomId = roomId;
+    }
+
+   // public Long getRoomId() { return roomId; }
 
     public static ResponseChatRoomDto of(ChatRoomEntity chatRoom) {
         return new ResponseChatRoomDto(chatRoom.getId(), chatRoom.getTitle(),
                 chatRoom.getNewDate());
     }
+
 }

@@ -15,6 +15,23 @@ public class CustomUserDetails implements UserDetails {
         this.userEntity = userEntity;
     }
 
+    // ✅ 여기 추가: 서비스 코드에서 userId/socialType을 바로 꺼낼 수 있도록
+    public Long getId() {
+        return userEntity.getId();
+    }
+
+    // 필요 시 사용 (토큰/로깅/검증 등)
+    public String getSocialType() {
+        // socialType 타입에 맞게 수정 (enum이면 .name(), 문자열이면 그대로)
+        // 예: return userEntity.getSocialType().name();
+        return userEntity.getSocialType();
+    }
+
+    public UserEntity getUserEntity() {
+        return userEntity;
+    }
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

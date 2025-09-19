@@ -15,6 +15,7 @@ public class CommentResponseDTO {
     private Long id; // 댓글 id
     private String content;
     private String writerName;
+    private Long writerId;// 2025 09 19
     private LocalDateTime createdAt;
     private Long parentId; // 대댓글
     private int replyCount; // 대 댓글 수

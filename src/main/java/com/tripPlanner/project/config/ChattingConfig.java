@@ -1,6 +1,10 @@
 package com.tripPlanner.project.config;
 
+import com.tripPlanner.project.component.JwtHandshakeInterceptor;
+import com.tripPlanner.project.component.StompAuthChannelInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -8,13 +12,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class ChattingConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+    private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // stomp 접속 주소 url = ws://localhost:8080/ws, 프로토콜이 http가 아님
         registry.addEndpoint("/ws-stomp") // 연결된 엔드포인트
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("*")
+                .addInterceptors(jwtHandshakeInterceptor);   // Handshake에서 쿠키→인증 심기
+
     }
 
     @Override
@@ -25,5 +35,13 @@ public class ChattingConfig implements WebSocketMessageBrokerConfigurer {
         // 메시지를 발행(송신)하는 엔드 포인트
         registry.setApplicationDestinationPrefixes("/pub");
     }
+
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompAuthChannelInterceptor); // CONNECT에서 Principal 세팅
+    }
+
+
 
 }
