@@ -20,5 +20,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMemberEn
         having count(distinct m.userEntity.id) = 2
     """)
     List<Long> findDmRoomIdsBetween(@Param("a") Long a, @Param("b")Long b);
-    
+
+
+
 }

@@ -1,7 +1,8 @@
 package com.tripPlanner.project.service.chat;
 
-import com.tripPlanner.project.dto.chat.RequestChatRoomDto;
+import com.tripPlanner.project.dto.chat.ChatRoomMemberDto;
 import com.tripPlanner.project.dto.chat.ResponseChatRoomDto;
+import com.tripPlanner.project.dto.chat.ResponseChatRoomDto2;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.entity.chat.ChatMessageEntity;
 import com.tripPlanner.project.entity.chat.ChatRoomEntity;
@@ -17,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,6 +85,26 @@ public class ChatRoomService {
         List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll();
         return chatRooms.stream().map(ResponseChatRoomDto::of).collect(Collectors.toList());
     }
+
+
+    // 채팅방 가져오기 테스트
+    @Transactional
+    public List<ResponseChatRoomDto2> findChatRoomList2() {
+        List<ChatRoomEntity> chatRooms = chatRoomRepository.findAllWithMembers();
+        return chatRooms.stream()
+                .map(r -> new ResponseChatRoomDto2(
+                        r.getId(),
+                        r.getTitle(),
+                        r.getNewDate(),
+                        r.getMembers().stream()
+                                .map(m -> new ChatRoomMemberDto(m.getUserEntity().getId(), m.getNickname(), m.getUserEntity().getAvatarUrl()))
+                                .toList(),
+                        r.getLastMessage(),
+                        r.getLastMessageAt()
+                ))
+                .toList();
+    }
+
 
     private void registerFirstMessageAfterCommit(Long roomId, Long senderId, String message) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

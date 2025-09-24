@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class RequestChatRoomDto {
 
+    // 프론트 엔드에서 요청하는 body의 이름과 맞추시오.
     private Long targetUserId;
     private String firstMessage;
 
