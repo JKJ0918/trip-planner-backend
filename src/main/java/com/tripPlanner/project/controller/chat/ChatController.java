@@ -1,11 +1,11 @@
 package com.tripPlanner.project.controller.chat;
 
-import com.tripPlanner.project.dto.CustomUserDetails;
 import com.tripPlanner.project.dto.chat.*;
-import com.tripPlanner.project.dto.ws.WsUserPrincipal;
 import com.tripPlanner.project.entity.UserEntity;
+import com.tripPlanner.project.entity.chat.ChatRoomMemberEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
+import com.tripPlanner.project.repository.chat.ChatRoomMemberRepository;
 import com.tripPlanner.project.service.chat.ChatRoomService;
 import com.tripPlanner.project.service.chat.ChatService;
 import jakarta.servlet.http.Cookie;
@@ -16,12 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +34,7 @@ public class ChatController {
     private final ChatService chatService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
 
     // 채팅방 생성
     @PostMapping("/create")
@@ -82,15 +83,28 @@ public class ChatController {
         Long writerId = (attrs != null) ? (Long) attrs.get("userId") : null;
 
 
-        return chatService.saveChatMessage(chat, writerId).flatMap(message -> {
-            // 메시지를 해당 채팅방 구독자들에게 전송
-            template.convertAndSend("/sub/chatroom/" + chat.getRoomId(),
-                    ResponseMessageDto.of(message));
+        return chatService.saveChatMessage(chat, writerId)
+                // 1) 메시지를 해당 채팅방 구독자들에게 전송
+                .flatMap(message -> {
+                template.convertAndSend("/sub/chatroom/" + chat.getRoomId(),
+                        ResponseMessageDto.of(message));
+                // 2) 요약 전송 (B)는 ChatService.saveChatMessage 내부에서 수행하는 설계로 통일
 
-            return Mono.just(ResponseEntity.ok().build()); // @MessageMapping 메서드 자체의 리턴값
+            return Mono.just(ResponseEntity.ok().build());
         });
 
-        // 추후 roomId에 따라 데이터베이스(MongoDB)에서 데이터 리스트를 가져오는 로직이 필요
+    }
+
+    // 채팅 읽음 확인
+    @PostMapping("/{roomId}/read")
+    public ResponseEntity<Void> read(@PathVariable("id") Long roomId, HttpServletRequest request){
+        Long myId = extractUserIdFromRequest(request);
+        ChatRoomMemberEntity member = chatRoomMemberRepository.findByChatRoomEntity_IdAndUserEntity_Id(roomId, myId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        member.setLastReadAt(new Date());
+        chatRoomMemberRepository.save(member);
+        return ResponseEntity.ok().build();
+
     }
 
     // 토큰 추출

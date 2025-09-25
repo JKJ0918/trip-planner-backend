@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMemberEntity, Long> {
 
@@ -21,6 +22,23 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMemberEn
     """)
     List<Long> findDmRoomIdsBetween(@Param("a") Long a, @Param("b")Long b);
 
+    // 채팅방 아이디로 userId 목록 반환
+    @Query("""
+      select m.userEntity.id
+      from ChatRoomMemberEntity m
+      where m.chatRoomEntity.id = :roomId
+    """)
+    List<Long> findUserIdsByRoomId(Long roomId);
+
+    // 채팅방 아이디로 채팅방 유저 Entity 반환, lastReadAt에 사용 예정
+    @Query("""
+      select m
+      from ChatRoomMemberEntity m
+      where m.chatRoomEntity.id = :roomId
+    """)
+    List<ChatRoomMemberEntity> findMembersByRoomId(Long roomId);
+
+    Optional<ChatRoomMemberEntity> findByChatRoomEntity_IdAndUserEntity_Id(Long roomId, Long userId);
 
 
 }

@@ -29,11 +29,17 @@ public class ChattingConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 메시지 구독(수신)하는 요청 엔드 포인트
-        registry.enableSimpleBroker("/sub");
-        
-        // 메시지를 발행(송신)하는 엔드 포인트
+        // 메시지를 발행(송신)하는 엔드 포인트, 클라이언트가 서버로 보낼 메시지 prefix
         registry.setApplicationDestinationPrefixes("/pub");
+
+        // 메시지 구독(수신)하는 요청 엔드 포인트
+        registry.enableSimpleBroker("/sub", "/queue");
+        // → 일반 broadcast는 /sub, 1:1 유저별 큐는 /queue
+
+        // 3) 유저 큐의 prefix
+        registry.setUserDestinationPrefix("/user");
+        // → convertAndSendToUser()가 내부적으로 /user/{session}/queue/... 로 매핑됨
+
     }
 
 

@@ -83,6 +83,7 @@ public class ChatRoomService {
     @Transactional
     public List<ResponseChatRoomDto> findChatRoomList() {
         List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll();
+
         return chatRooms.stream().map(ResponseChatRoomDto::of).collect(Collectors.toList());
     }
 
@@ -105,6 +106,13 @@ public class ChatRoomService {
                 .toList();
     }
 
+    // 채팅방에 있는 유저 ID 모음(List)
+    public List<Long> findMemberIds(Long roomId) {
+        //List<Long> memberIds = chatRoomMemberRepository.findUserIdByChatroomId(roomId);
+        List<Long> memberIds = chatRoomMemberRepository.findUserIdsByRoomId(roomId);
+
+        return memberIds;
+    }
 
     private void registerFirstMessageAfterCommit(Long roomId, Long senderId, String message) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
