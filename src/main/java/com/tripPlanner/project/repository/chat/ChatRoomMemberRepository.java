@@ -2,6 +2,7 @@ package com.tripPlanner.project.repository.chat;
 
 import com.tripPlanner.project.entity.chat.ChatRoomMemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,7 +29,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMemberEn
       from ChatRoomMemberEntity m
       where m.chatRoomEntity.id = :roomId
     """)
-    List<Long> findUserIdsByRoomId(Long roomId);
+    List<Long> findUserIdsByRoomId(@Param("roomId") Long roomId);
 
     // 채팅방 아이디로 채팅방 유저 Entity 반환, lastReadAt에 사용 예정
     @Query("""
@@ -36,9 +37,8 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMemberEn
       from ChatRoomMemberEntity m
       where m.chatRoomEntity.id = :roomId
     """)
-    List<ChatRoomMemberEntity> findMembersByRoomId(Long roomId);
+    List<ChatRoomMemberEntity> findMembersByRoomId(@Param("roomId") Long roomId);
 
     Optional<ChatRoomMemberEntity> findByChatRoomEntity_IdAndUserEntity_Id(Long roomId, Long userId);
-
 
 }

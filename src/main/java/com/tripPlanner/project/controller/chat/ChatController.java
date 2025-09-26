@@ -2,6 +2,7 @@ package com.tripPlanner.project.controller.chat;
 
 import com.tripPlanner.project.dto.chat.*;
 import com.tripPlanner.project.entity.UserEntity;
+import com.tripPlanner.project.entity.chat.ChatRoomEntity;
 import com.tripPlanner.project.entity.chat.ChatRoomMemberEntity;
 import com.tripPlanner.project.jwt.JWTUtil;
 import com.tripPlanner.project.repository.UserRepository;
@@ -51,6 +52,7 @@ public class ChatController {
 
         return ResponseEntity.ok(new ResponseChatRoomDto(roomId));
     }
+
 
     // 채팅방 목록 가져오기 (기존 삭제 예정)
     @GetMapping("/chatList")

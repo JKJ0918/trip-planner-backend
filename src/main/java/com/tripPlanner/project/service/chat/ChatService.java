@@ -6,6 +6,7 @@ import com.tripPlanner.project.dto.chat.ResponseMessageDto;
 import com.tripPlanner.project.entity.chat.ChatMessageEntity;
 import com.tripPlanner.project.entity.chat.ChatRoomEntity;
 import com.tripPlanner.project.entity.chat.ChatRoomMemberEntity;
+import com.tripPlanner.project.entity.comments.CommentEntity;
 import com.tripPlanner.project.repository.chat.ChatMessageRepository;
 import com.tripPlanner.project.repository.chat.ChatRoomMemberRepository;
 import com.tripPlanner.project.repository.chat.ChatRoomRepository;
@@ -45,6 +46,13 @@ public class ChatService {
                 writerId,
                 new Date()
         );
+
+        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chat.getRoomId())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청"));
+
+        chatRoomEntity.setLastMessage(chat.getContent());
+        chatRoomEntity.setLastMessageAt(chat.getCreatedDate());
+
 
         return chatMessageRepository.save(entity).flatMap(saved -> {
             // 요약 브로드캐스트(사이드바 갱신)
@@ -99,5 +107,6 @@ public class ChatService {
         } // end for
         return Mono.empty();
     }// end broadcastRoomSummaryForAll
+
 
 }

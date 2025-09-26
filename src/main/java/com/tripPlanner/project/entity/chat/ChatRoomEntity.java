@@ -35,7 +35,7 @@ public class ChatRoomEntity {
 
     private String lastMessage; // 마지막 메시지
 
-    private LocalDate lastMessageAt; // 마지막 메시지 보낸 날짜
+    private Date lastMessageAt; // 마지막 메시지 보낸 날짜
 
     public ChatRoomEntity(String title, Date newDate){
         this.title = title;

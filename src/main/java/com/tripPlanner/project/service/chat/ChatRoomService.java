@@ -1,8 +1,6 @@
 package com.tripPlanner.project.service.chat;
 
-import com.tripPlanner.project.dto.chat.ChatRoomMemberDto;
-import com.tripPlanner.project.dto.chat.ResponseChatRoomDto;
-import com.tripPlanner.project.dto.chat.ResponseChatRoomDto2;
+import com.tripPlanner.project.dto.chat.*;
 import com.tripPlanner.project.entity.UserEntity;
 import com.tripPlanner.project.entity.chat.ChatMessageEntity;
 import com.tripPlanner.project.entity.chat.ChatRoomEntity;
@@ -13,12 +11,16 @@ import com.tripPlanner.project.repository.chat.ChatRoomMemberRepository;
 import com.tripPlanner.project.repository.chat.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +35,44 @@ public class ChatRoomService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
+    private final SimpMessageSendingOperations template;
 
-    /*
-        1. myId, targetId 두 유저가 함께 속한 방이 있으면 그 roomId 반환
-        2. 없으면 방 생성 + 멤버 2명 저장 후 roomId 반환
-        3. 첫 메시지 저장(MongoDB)
-        4. roomId 반환
-     */
+
+    @Transactional
+    public List<ResponseChatRoomDto> findChatRoomList() {
+        List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll();
+
+        return chatRooms.stream().map(ResponseChatRoomDto::of).collect(Collectors.toList());
+    }
+
+
+    // 채팅방 가져오기 테스트
+    @Transactional
+    public List<ResponseChatRoomDto2> findChatRoomList2() {
+        List<ChatRoomEntity> chatRooms = chatRoomRepository.findAllWithMembers();
+        return chatRooms.stream()
+                .map(r -> new ResponseChatRoomDto2(
+                        r.getId(),
+                        r.getTitle(),
+                        r.getNewDate(),
+                        r.getMembers().stream()
+                                .map(m -> new ChatRoomMemberDto(m.getUserEntity().getId(), m.getNickname(), m.getUserEntity().getAvatarUrl()))
+                                .toList(),
+                        r.getLastMessage(),
+                        r.getLastMessageAt()
+                ))
+                .toList();
+    }
+
+
+    // 채팅방에 있는 유저 ID 모음(List)
+    public List<Long> findMemberIds(Long roomId) {
+        //List<Long> memberIds = chatRoomMemberRepository.findUserIdByChatroomId(roomId);
+        List<Long> memberIds = chatRoomMemberRepository.findUserIdsByRoomId(roomId);
+
+        return memberIds;
+    }
+
     @Transactional
     public Long createChatRoom(Long myId, Long targetId, String firstMessage) {
 
@@ -79,41 +112,6 @@ public class ChatRoomService {
         return roomId;
     }
 
-
-    @Transactional
-    public List<ResponseChatRoomDto> findChatRoomList() {
-        List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll();
-
-        return chatRooms.stream().map(ResponseChatRoomDto::of).collect(Collectors.toList());
-    }
-
-
-    // 채팅방 가져오기 테스트
-    @Transactional
-    public List<ResponseChatRoomDto2> findChatRoomList2() {
-        List<ChatRoomEntity> chatRooms = chatRoomRepository.findAllWithMembers();
-        return chatRooms.stream()
-                .map(r -> new ResponseChatRoomDto2(
-                        r.getId(),
-                        r.getTitle(),
-                        r.getNewDate(),
-                        r.getMembers().stream()
-                                .map(m -> new ChatRoomMemberDto(m.getUserEntity().getId(), m.getNickname(), m.getUserEntity().getAvatarUrl()))
-                                .toList(),
-                        r.getLastMessage(),
-                        r.getLastMessageAt()
-                ))
-                .toList();
-    }
-
-    // 채팅방에 있는 유저 ID 모음(List)
-    public List<Long> findMemberIds(Long roomId) {
-        //List<Long> memberIds = chatRoomMemberRepository.findUserIdByChatroomId(roomId);
-        List<Long> memberIds = chatRoomMemberRepository.findUserIdsByRoomId(roomId);
-
-        return memberIds;
-    }
-
     private void registerFirstMessageAfterCommit(Long roomId, Long senderId, String message) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
@@ -127,6 +125,7 @@ public class ChatRoomService {
             }
         });
     }
+
 
 
 

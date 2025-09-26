@@ -20,6 +20,6 @@ public class ResponseChatRoomDto2 {
     private Date createDate;
     List<ChatRoomMemberDto> members;
     private String lastMessage; // 마지막 메시지
-    private LocalDate lastMessageAt; // 마지막 메시지 날짜
+    private Date lastMessageAt; // 마지막 메시지 날짜
     
 }

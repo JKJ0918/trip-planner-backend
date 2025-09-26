@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -31,6 +32,7 @@ public class ChatRoomMemberEntity {
     // 사용자가 해당 방에서 마지막으로 읽은 시각
     // null이면 방 입장 전/기록 없음 → 전부 미확인 처리
     private Date lastReadAt;
+
 
     public ChatRoomMemberEntity(ChatRoomEntity room, UserEntity user, String nickname) {
         this.chatRoomEntity = room;
